@@ -109,10 +109,10 @@ class ProductController {
     if (productImage || productImageDetail) {
       const dataArrayImageMulter: string[] = [];
       const dataArrayImage: string[] = [];
-      req.body.productImage = 'http://' + process.env.URL + `/${nameFile.products}/` + productImage[0]?.filename;
+      req.body.productImage = 'https://' + process.env.URL + `/${nameFile.products}/` + productImage[0]?.filename;
       dataArrayImageMulter.push(productImage[0]?.filename);
       productImageDetail?.map((item: any) => {
-        dataArrayImage.push('http://' + process.env.URL + `/${nameFile.products}/` + item?.filename);
+        dataArrayImage.push('https://' + process.env.URL + `/${nameFile.products}/` + item?.filename);
         dataArrayImageMulter.push(item?.filename);
       });
       req.body.productImageDetail = dataArrayImage;
