@@ -7,7 +7,7 @@ export type IPaganition = {
   pageSize: number;
 };
 
-export const maxSize: number = 5;
+export const maxSize: number = 3;
 export const maxSizeImage: number = maxSize * 1024 * 1024;
 
 export const nameFile: { products: string; bannersCategories: string; users: string } = {
