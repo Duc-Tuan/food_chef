@@ -1,7 +1,14 @@
-import { Response, Request } from 'express';
+/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Request, Response } from 'express';
+import { getDownloadURL, ref, uploadBytesResumable, deleteObject } from 'firebase/storage';
 import { nameFile } from '../styles';
 import { deleteImage, mapIndex } from './Type';
+import { giveCurrentDateTime, storage } from '../utils/firebase/upload-file.controller';
+import { uploadImages } from '../utils/firebase/funcFireBase';
 const products = require('../models/ProductModel');
+const firebase = require('firebase-admin');
+
 
 class ProductController {
   //[GET] danh sách sản phẩm tất cả hoặc theo phân trang page&pageSize hoặc tìm kiếm theo query&status
@@ -105,27 +112,26 @@ class ProductController {
 
   //[PUT] Thêm mới sản phẩm
   async createProduct(req: Request, res: Response, next: any) {
-    const { productImage, productImageDetail }: any = req.files;
-    if (productImage || productImageDetail) {
+
+    try {
       const dataArrayImageMulter: string[] = [];
-      const dataArrayImage: string[] = [];
-      req.body.productImage = 'http://' + process.env.URL + `/${nameFile.products}/` + productImage[0]?.filename;
-      dataArrayImageMulter.push(productImage[0]?.filename);
-      productImageDetail?.map((item: any) => {
-        dataArrayImage.push('http://' + process.env.URL + `/${nameFile.products}/` + item?.filename);
-        dataArrayImageMulter.push(item?.filename);
-      });
-      req.body.productImageDetail = dataArrayImage;
+      const dataFile = await uploadImages(req?.file, 'images/products');
+      dataArrayImageMulter.push(dataFile.nameFile);
+
+      req.body.productImage = dataFile.downloadURL;
       req.body.productImageMulter = dataArrayImageMulter;
+
+      await mapIndex('SP', products, req);
+      const dataProducts = new products(req.body);
+      dataProducts
+        .save()
+        .then(() => {
+          return res.status(200).json({ mess: 'Thêm sản phẩm thành công.' });
+        })
+        .catch((err: any) => next(err));
+    } catch (error: any) {
+      return res.status(400).send(error?.message);
     }
-    await mapIndex('SP', products, req);
-    const dataProducts = new products(req.body);
-    dataProducts
-      .save()
-      .then(() => {
-        return res.status(200).json({ mess: 'Thêm sản phẩm thành công.' });
-      })
-      .catch((err: any) => next(err));
   }
 
   //[DELETE] Xóa một sản phẩm theo id

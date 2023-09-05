@@ -1,6 +1,7 @@
 import express, { Response, Request } from 'express';
 import UploadDiver from '../../utils/multer/UploadUser';
 import { storateProduct } from '../../utils/multer/Type';
+import { upload } from '../../utils/firebase/upload-file.controller';
 var router = express.Router();
 
 const productController = require('../../controllers/ProductController');
@@ -22,6 +23,6 @@ router.delete('/', productController.deleteProducts);
 // Danh sách sản phẩm
 router.get('/', productController.index);
 // Thêm sản phẩm
-router.put('/', cpUpload, ErrorUploadImage, productController.createProduct);
+router.put('/', upload.single('productImage'), productController.createProduct);
 
 module.exports = router;

@@ -1,19 +1,11 @@
 import express from 'express';
-import UploadDiver from '../../utils/multer/UploadUser';
-import { storateProduct } from '../../utils/multer/Type';
+import { upload } from '../../utils/firebase/upload-file.controller';
 var router = express.Router();
 
-const uploadFIleController = require('../../controllers/UploadFileContrller');
-const ErrorUploadImage = require('../../utils/multer/ErrorUploadImage');
+const uploadFileContrller = require('../../controllers/UploadFileContrller');
 
-router.put(
-  '/products',
-  UploadDiver(storateProduct).fields([
-    { name: 'fileUpload', maxCount: 1 },
-    { name: 'fileUploads', maxCount: 4 },
-  ]),
-  ErrorUploadImage,
-  uploadFIleController.index,
-);
+// upload File
+router.post('/', upload.single('fileName'), uploadFileContrller.index);
+router.delete('/', uploadFileContrller.detele);
 
 module.exports = router;
