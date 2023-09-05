@@ -32,8 +32,8 @@ app.use(function (req: Request, res: Response, next) {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-router(app);
-configUriImage(app);
+// router(app);
+// configUriImage(app);
 
 //catch 404 error and forward to error handler
 app.use((req: Request, res: Response, next: any) => {
