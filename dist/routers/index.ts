@@ -11,7 +11,7 @@ function route(app: Application) {
   app.use(versionRouter + '/products', productRouter);
   app.use(versionRouter + '/accounts', accountRouter);
   app.use(versionRouter + '/uploadFile', uploadFileRouter);
-  app.use(versionRouter + '/', siteRouter);
+  app.use(versionRouter + '/aaaa', siteRouter);
 }
 
 module.exports = route;
