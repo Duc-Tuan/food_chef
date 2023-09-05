@@ -107,7 +107,7 @@
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
   "exclude": ["node_modules"],
-  "include": ["dist/*", "remix.env.d.ts", "**/*.ts", "**/*.tsx", "index.js"],
+  "include": ["dist/*", "remix.env.d.ts", "**/*.ts", "**/*.tsx"],
   "ts-node": {
     // It is faster to skip typechecking.
     // Remove if you want ts-node to do typechecking.
