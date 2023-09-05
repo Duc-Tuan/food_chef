@@ -4,7 +4,7 @@ import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import path from 'path';
 require('dotenv').config();
-require('./dist/data/mongooDb');
+// require('./dist/data/mongooDb');
 
 const router: any = require('./dist/routers');
 const configUriImage: any = require('./dist/utils/others/configUriImage');
