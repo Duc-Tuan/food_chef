@@ -1,26 +1,25 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-'use strict';
-import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
+import express from 'express';
 import path from 'path';
 require('dotenv').config();
 require('./dist/data/mongooDb');
 
-// const router: any = require('./dist/routers');
-// const configUriImage: any = require('./dist/utils/others/configUriImage');
+// const router = require('./dist/routers');
+// const configUriImage = require('./dist/utils/others/configUriImage');
 
-var __importDefault = function (mod: any) {
+var __importDefault = function (mod) {
   return mod && mod.__esModule ? mod : { default: mod };
 };
 Object.defineProperty(exports, '__esModule', { value: true });
 
 const express_1 = __importDefault(express);
-const app: Application = (0, express_1.default)();
+const app = (0, express_1.default)();
 app.use(cors());
 
 app.use(express.static(path.join(__dirname, 'assets')));
 
-app.use(function (req: Request, res: Response, next) {
+app.use(function (req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
@@ -36,14 +35,14 @@ app.use(express.urlencoded({ extended: true }));
 // configUriImage(app);
 
 //catch 404 error and forward to error handler
-app.use((req: Request, res: Response, next: any) => {
-  const err: any = new Error('Not Found');
+app.use((req, res, next) => {
+  const err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
 
 // error handler function
-app.use((err: any, req: Request, res: Response) => {
+app.use((err, req, res) => {
   const error = app.get('env') === 'development' ? err : {};
   const status = err.status || 500;
 
