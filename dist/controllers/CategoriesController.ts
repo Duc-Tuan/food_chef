@@ -9,7 +9,7 @@ class CategoriesController {
     async index(req: Request, res: Response, next: any) {
         try {
             CategoriesModel
-                .find({ categoryImageMulter: 0 })
+                .find(undefined, { categoryImageMulter: 0 })
                 .sort({ index: -1 })
                 .then((data: any) => {
                     return res.status(200).json(data);
