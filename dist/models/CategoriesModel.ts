@@ -21,7 +21,5 @@ const categorySchema = new SchemaCategory(
   },
 );
 
-// enum: ['STOCKING', 'OUT_OF_STOCK']
-
 const categories = mongodbCategory.model('categories', categorySchema);
 module.exports = categories;

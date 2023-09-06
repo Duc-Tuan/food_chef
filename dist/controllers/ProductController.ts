@@ -1,14 +1,10 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Request, Response } from 'express';
-import { getDownloadURL, ref, uploadBytesResumable, deleteObject } from 'firebase/storage';
 import { nameFile } from '../styles';
-import { deleteImage, mapIndex } from './Type';
-import { giveCurrentDateTime, storage } from '../utils/firebase/upload-file.controller';
 import { uploadImages } from '../utils/firebase/funcFireBase';
+import { deleteImage, mapIndex } from './Type';
 const products = require('../models/ProductModel');
-const firebase = require('firebase-admin');
-
 
 class ProductController {
   //[GET] danh sách sản phẩm tất cả hoặc theo phân trang page&pageSize hoặc tìm kiếm theo query&status
