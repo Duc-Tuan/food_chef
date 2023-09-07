@@ -1,4 +1,5 @@
 import { Application, Response, Request } from 'express';
+const MerchantRouter = require('./router/MerchantRouter');
 const CategoriesRouter = require('./router/CategoriesRouter');
 const productRouter = require('./router/ProductRouter');
 const accountRouter = require('./router/AccountRouter');
@@ -14,6 +15,7 @@ function route(app: Application) {
   app.use(versionRouter + '/accounts', accountRouter);
   app.use(versionRouter + '/banners', BannerRouter);
   app.use(versionRouter + '/categories', CategoriesRouter);
+  app.use(versionRouter + '/merchants', MerchantRouter);
   app.use(versionRouter + '/uploadFile', uploadFileRouter);
   app.use(versionRouter + '/', siteRouter);
 }
