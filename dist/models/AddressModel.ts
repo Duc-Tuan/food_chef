@@ -10,6 +10,10 @@ const AddressSchemaOrder = new SchemaAddressOrder(
     addressPhoneReceive: { type: String, length: 255, require: true, default: null },
     addressTimeReceive: { type: String, length: 255, require: true, default: null },
     addressDetail: { type: String, length: 255, require: true, default: null },
+    addressWards: { type: String, length: 255, require: true, default: null },
+    addressVillage: { type: String, length: 255, require: true, default: null },
+    addressDistrict: { type: String, length: 255, require: true, default: null },
+    addressCity: { type: String, length: 255, require: true, default: null },
     addressDefault: { type: Boolean, require: true, default: false },
   },
   {
