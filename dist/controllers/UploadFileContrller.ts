@@ -1,5 +1,6 @@
 import { Response, Request } from 'express';
 import { deleteFile, uploadImages } from '../utils/firebase/funcFireBase';
+import { nameFile } from '../styles';
 class UploadFileController {
   //[GET] danh sách tài khoản tất cả hoặc theo phân trang page&pageSize hoặc tìm kiếm theo query&status
   async index(req: Request, res: Response, next: any) {
@@ -22,10 +23,10 @@ class UploadFileController {
     //   next(error);
     // }
     try {
-      const dataFile = await uploadImages(req?.file, 'images/productDetails');
+      const dataFile = await uploadImages(req?.file, `images/${nameFile.productDetails}`);
       return res.status(200).json(dataFile);
     } catch (error) {
-      return res.status(500).json(error);
+      next(error);
     }
   }
 
@@ -34,7 +35,7 @@ class UploadFileController {
       const dataFile = await deleteFile(req?.body?.fileName);
       return res.status(200).json(dataFile);
     } catch (error) {
-      return res.status(500).json(error);
+      next(error);
     }
   }
 }

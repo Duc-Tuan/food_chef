@@ -111,7 +111,7 @@ class ProductController {
 
     try {
       const dataArrayImageMulter: string[] = [];
-      const dataFile = await uploadImages(req?.file, 'images/products');
+      const dataFile = await uploadImages(req?.file, `images/${nameFile.products}`);
       dataArrayImageMulter.push(dataFile.nameFile);
 
       req.body.productImage = dataFile.downloadURL;

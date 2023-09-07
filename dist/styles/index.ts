@@ -10,9 +10,15 @@ export type IPaganition = {
 export const maxSize: number = 3;
 export const maxSizeImage: number = maxSize * 1024 * 1024;
 
-export const nameFile: { products: string; bannersCategories: string; users: string } = {
+export const nameFile: {
+  products: string; banners: string; users: string, merchant: string, categories: string,
+  productDetails: string
+} = {
   products: 'products',
-  bannersCategories: 'bannersCategories',
+  banners: 'banners',
+  merchant: 'merchant',
+  categories: 'categories',
+  productDetails: 'productDetails',
   users: 'users',
 };
 

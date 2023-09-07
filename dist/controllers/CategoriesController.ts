@@ -2,6 +2,7 @@
 import { Request, Response } from 'express';
 import { uploadImages } from '../utils/firebase/funcFireBase';
 import { mapIndex } from './Type';
+import { nameFile } from '../styles';
 const CategoriesModel = require('../models/CategoriesModel');
 
 class CategoriesController {
@@ -26,7 +27,7 @@ class CategoriesController {
     //PUT /categories
     async createCategories(req: Request, res: Response, next: any) {
         try {
-            const dataFile = await uploadImages(req?.file, 'images/categories');
+            const dataFile = await uploadImages(req?.file, `images/${nameFile.categories}`);
             req.body.categoryImageMulter = dataFile.nameFile;
 
             req.body.categoryImage = dataFile.downloadURL;

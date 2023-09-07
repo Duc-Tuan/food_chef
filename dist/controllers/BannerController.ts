@@ -2,6 +2,7 @@
 import { Request, Response } from 'express';
 import { uploadImages } from '../utils/firebase/funcFireBase';
 import { mapIndex } from './Type';
+import { nameFile } from '../styles';
 const BannrsModel = require('../models/BannrsModel');
 
 class BannerController {
@@ -26,7 +27,7 @@ class BannerController {
     //PUT /categories
     async createBanners(req: Request, res: Response, next: any) {
         try {
-            const dataFile = await uploadImages(req?.file, 'images/banners');
+            const dataFile = await uploadImages(req?.file, `images/${nameFile.banners}`);
             req.body.bannerImageMulter = dataFile.nameFile;
 
             req.body.bannerImage = dataFile.downloadURL;
