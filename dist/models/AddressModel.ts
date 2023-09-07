@@ -15,6 +15,10 @@ const AddressSchemaOrder = new SchemaAddressOrder(
     addressDistrict: { type: String, length: 255, require: true, default: null },
     addressCity: { type: String, length: 255, require: true, default: null },
     addressDefault: { type: Boolean, require: true, default: false },
+    address_useId: {
+      type: SchemaAddressOrder.Types.ObjectId,
+      ref: 'users',
+    },
   },
   {
     timestamps: true,
