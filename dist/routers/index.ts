@@ -4,6 +4,7 @@ const CategoriesRouter = require('./router/CategoriesRouter');
 const productRouter = require('./router/ProductRouter');
 const accountRouter = require('./router/AccountRouter');
 const uploadFileRouter = require('./router/UploadFileRouter');
+const AddressRouter = require('./router/AddressRouter');
 const BannerRouter = require('./router/BannerRouter');
 const siteRouter = require('./router/Site');
 
@@ -16,6 +17,7 @@ function route(app: Application) {
   app.use(versionRouter + '/banners', BannerRouter);
   app.use(versionRouter + '/categories', CategoriesRouter);
   app.use(versionRouter + '/merchants', MerchantRouter);
+  app.use(versionRouter + '/addressOrders', AddressRouter);
   app.use(versionRouter + '/uploadFile', uploadFileRouter);
   app.use(versionRouter + '/', siteRouter);
 }

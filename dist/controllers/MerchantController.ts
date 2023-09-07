@@ -50,14 +50,10 @@ class MerchantController {
             const { id } = req.params;
             const check = await MerchantModel.findById(id);
             if (check) {
-                console.log(check?.merchantImageMulter);
-
                 if (req?.file) {
                     await deleteFile(check?.merchantImageMulter);
-
                     const dataFile = await uploadImages(req?.file, `images/${nameFile.merchant}`);
                     req.body.merchantImageMulter = dataFile.nameFile;
-
                     req.body.merchantImage = dataFile.downloadURL;
                 }
                 MerchantModel.findByIdAndUpdate({ _id: id }, req.body).then(() => {
