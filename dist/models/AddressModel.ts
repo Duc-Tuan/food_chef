@@ -18,6 +18,7 @@ const AddressSchemaOrder = new SchemaAddressOrder(
     address_useId: {
       type: SchemaAddressOrder.Types.ObjectId,
       ref: 'users',
+      default: null,
     },
   },
   {
