@@ -4,19 +4,20 @@ import { getDownloadURL, ref, uploadBytesResumable, deleteObject } from 'firebas
 import { giveCurrentDateTime, storage } from './upload-file.controller';
 
 const uploadImages = async (data: any, fileName: string) => {
-    const storageRef = ref(storage, `${fileName}/${giveCurrentDateTime()}_${data?.originalname}`);
+    const randomId = giveCurrentDateTime();
+    const storageRef = ref(storage, `${fileName}/${randomId}_${data?.originalname}`);
     // Upload the file in the bucket storage
     const snapshot = await uploadBytesResumable(storageRef, data?.buffer, {
         contentType: data?.mimetype,
     });
     // Grab the public url
     const downloadURL = await getDownloadURL(snapshot.ref);
-    return { downloadURL, nameFile: `${fileName}/${giveCurrentDateTime()}_${data?.originalname}` };
+    return { downloadURL, nameFile: `${fileName}/${randomId}_${data?.originalname}` };
 };
 
 const deleteFile = (fileName: any) => {
     try {
-        const desertRef = ref(storage, `${fileName}`);
+        const desertRef = ref(storage, fileName);
         return deleteObject(desertRef).then(() => {
             // File deleted successfully'
             return { mess: 'Xóa file thành công.' };

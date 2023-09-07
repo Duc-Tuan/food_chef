@@ -4,10 +4,11 @@ var router = express.Router();
 
 const MerchantController = require('../../controllers/MerchantController');
 
-// Thêm tài khoản
+// Thêm thông tin cửa hàng
 router.put('/', upload.single('merchantImage'), MerchantController.createMerchant);
-
-// danh sách tài khoản
+// sửa thông tin cửa hàng
+router.patch('/:id', upload.single('merchantImage'), MerchantController.editMerchant);
+// lấy thông tin cửa hàng
 router.get('/', MerchantController.index);
 
 module.exports = router;
