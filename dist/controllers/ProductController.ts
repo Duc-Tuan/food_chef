@@ -122,7 +122,7 @@ class ProductController {
       dataProducts
         .save()
         .then(() => {
-          return res.status(200).json({ mess: 'Thêm sản phẩm thành công.' });
+          return res.status(200).json({ status: true, mess: 'Thêm sản phẩm thành công.' });
         })
         .catch((err: any) => next(err));
     } catch (error: any) {
