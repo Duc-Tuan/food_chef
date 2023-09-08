@@ -8,7 +8,7 @@ router.put('/', AddressOrderContronller.createAddressOrder);
 // chỉnh sửa địa chỉ nhận hàng
 router.patch('/:id', AddressOrderContronller.editAddressOrder);
 // danh sách địa chỉ nhận hàng
-router.get('/:id', AddressOrderContronller.getDetail);
+router.get('/detail/:id', AddressOrderContronller.getDetail);
 // danh sách địa chỉ nhận hàng
 router.get('/', AddressOrderContronller.index);
 
