@@ -82,6 +82,22 @@ class AddressOrderController {
         }
     }
 
+    //GET /addressOrder detail
+    async getDetail(req: Request, res: Response, next: any) {
+        const { id } = req.params;
+        try {
+            AddressModel
+                .findById(id)
+                .then((data: any) => {
+                    return res.status(200).json(data);
+                })
+                .catch((err: any) => {
+                    return next(err);
+                });
+        } catch (error) {
+            next(error);
+        }
+    }
 
     //PUT /addressOrder
     async createAddressOrder(req: Request, res: Response, next: any) {
