@@ -137,6 +137,23 @@ class AddressOrderController {
             next(error);
         }
     }
+
+    // DELTE /addressOrder
+    async deleteAddressOrder(req: Request, res: Response, next: any) {
+        try {
+            const { id } = req.params;
+            const check = await AddressModel.findById(id);
+            if (check) {
+                await AddressModel.findByIdAndDelete({ _id: id }).then(() => {
+                    return res.status(200).json({ status: true, mess: 'Xóa địa chỉ thành công.' });
+                });
+            } else {
+                return res.status(404).json({ status: false, mess: 'Không thể tìm thấy id của địa chỉ.' });
+            }
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 module.exports = new AddressOrderController();

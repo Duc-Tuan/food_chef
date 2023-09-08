@@ -3,8 +3,10 @@ var router = express.Router();
 
 const AddressOrderContronller = require('../../controllers/AddressOrderContronller');
 
-// danh sách địa chỉ nhận hàng
+// danh sách chi tiết địa chỉ nhận hàng
 router.get('/:id', AddressOrderContronller.getDetail);
+// Xóa địa chỉ nhận hàng
+router.delete('/:id', AddressOrderContronller.deleteAddressOrder);
 // thêm địa chỉ nhận hàng
 router.put('/', AddressOrderContronller.createAddressOrder);
 // chỉnh sửa địa chỉ nhận hàng
