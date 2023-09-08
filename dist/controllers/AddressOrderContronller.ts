@@ -110,7 +110,7 @@ class AddressOrderController {
             dataAddressOrder
                 .save()
                 .then(() => {
-                    return res.status(200).json({ mess: 'Thêm địa chỉ thành công.' });
+                    return res.status(200).json({ status: true, mess: 'Thêm địa chỉ thành công.' });
                 })
                 .catch((err: any) => next(err));
         } catch (error: any) {
