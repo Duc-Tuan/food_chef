@@ -14,6 +14,7 @@ const UserSchema = new SchemaUser(
     userProvinceCity: { type: String, length: 255, default: null },
     userDistrict: { type: String, length: 255, default: null },
     userCommune: { type: String, length: 255, default: null },
+    userAge: { type: String, length: 100, default: null },
     userEmail: { type: String, length: 255, default: null },
     userPhone: { type: String, length: 255, default: null },
     userName: { type: String, require: true, length: 255 },
