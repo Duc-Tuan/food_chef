@@ -4,7 +4,7 @@ const tokenkey: string = 'jwtsecretplschange';
 
 const createTokens = (data: any) => {
   const accessToken = sign(data, tokenkey, {
-    expiresIn: '30s',
+    expiresIn: '30d',
   });
   return accessToken;
 };

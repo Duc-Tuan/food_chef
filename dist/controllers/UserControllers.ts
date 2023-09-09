@@ -139,11 +139,12 @@ class UsersController {
       userImageMulter: 0,
     };
     try {
-      const tokenHeader = req?.headers.authorization;
+      const token: string = String(req?.headers['x-food-access-token']);
+      console.log('tokenHeader: ', token);
       let dataTokenNew: string | undefined = undefined;
       let dataLogin: any;
-      if (tokenHeader && (password === undefined || usename === undefined)) {
-        const token = tokenHeader.slice(7);
+      if (token && (password === undefined || usename === undefined)) {
+        // const token = tokenHeader.slice(7);
         const dataValidate = validateToken(token);
         if (dataValidate?.status) {
           dataLogin = await Users.findById({ _id: dataValidate?.id }, hiddenData);
@@ -155,7 +156,7 @@ class UsersController {
         dataLogin = await Users.findOne({ userName: usename, userPassword: req.body.userPassword }, hiddenData);
         dataTokenNew = createTokens({ id: dataLogin?._id });
       }
-      return res.status(200).json({ data: dataLogin, status: true, token: dataTokenNew ?? tokenHeader?.slice(7) });
+      return res.status(200).json({ data: dataLogin, status: true, token: dataTokenNew ?? token });
     } catch (error) {
       next(error);
     }
