@@ -121,7 +121,7 @@ class UsersController {
           })
           .catch((err: any) => next(err));
       } else {
-        return res.status(400).json({ status: false, mess: 'Tên tài khoản đã tồn tại. Vui lòng chọn tài tên khác' });
+        return res.status(200).json({ status: false, mess: 'Tên tài khoản đã tồn tại. Vui lòng chọn tài tên khác' });
       }
     } catch (error) {
       next(error);
