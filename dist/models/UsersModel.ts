@@ -9,7 +9,7 @@ const UserSchema = new SchemaUser(
     userNickname: { type: String, length: 255, default: null },
     userType: { type: String, length: 255, default: 'User' },
     userRole: [{ type: SchemaUser.Types.ObjectId, ref: 'Roles', default: null }],
-    userGender: { type: String, length: 255, default: null, enum: ['Nam', 'Nữ', 'Khác'] },
+    userGender: { type: String, length: 255, default: 'Khác', enum: ['Nam', 'Nữ', 'Khác'] },
     userAdrressDesc: { type: String, length: 255, default: null },
     userProvinceCity: { type: String, length: 255, default: null },
     userDistrict: { type: String, length: 255, default: null },
