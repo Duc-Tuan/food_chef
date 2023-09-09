@@ -140,7 +140,6 @@ class UsersController {
     };
     try {
       const token: string = String(req?.headers['x-food-access-token']);
-      console.log('tokenHeader: ', token);
       let dataTokenNew: string | undefined = undefined;
       let dataLogin: any;
       if (token && (password === undefined || usename === undefined)) {
