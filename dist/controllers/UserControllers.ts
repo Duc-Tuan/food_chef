@@ -133,6 +133,10 @@ class UsersController {
     const hiddenData = {
       userPassword: 0,
       userType: 0,
+      index: 0,
+      userRole: 0,
+      __v: 0,
+      userImageMulter: 0,
     };
     try {
       const tokenHeader = req?.headers.authorization;
