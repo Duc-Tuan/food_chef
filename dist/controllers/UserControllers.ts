@@ -129,7 +129,7 @@ class UsersController {
   }
 
   async login(req: Request, res: Response, next: any) {
-    const { password, usename, token } = req.body;
+    const { password, usename } = req.body;
     const hiddenData = {
       userPassword: 0,
       userType: 0,
@@ -139,8 +139,8 @@ class UsersController {
       userImageMulter: 0,
     };
     try {
-      const tokenHeader: string = String(req?.headers['x-food-access-token']);
-      console.log("tokenHeader: ", tokenHeader);
+      const token: string = String(req?.headers['x-food-access-token']);
+      console.log('tokenHeader: ', token);
       let dataTokenNew: string | undefined = undefined;
       let dataLogin: any;
       if (token && (password === undefined || usename === undefined)) {
