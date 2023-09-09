@@ -23,7 +23,7 @@ app.use(express.static(path.join(__dirname, 'assets')));
 app.use(function (req: Request, res: Response, next) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, x-food-access-token');
   res.setHeader('Access-Control-Allow-Credentials', new Boolean(true).toString());
   // Pass to next layer of middleware
   next();
