@@ -153,6 +153,9 @@ class UsersController {
       } else {
         req.body.userPassword = encodePass(password);
         dataLogin = await Users.findOne({ userName: usename, userPassword: req.body.userPassword }, hiddenData);
+        if (!dataLogin) {
+          return res.status(404).json({ status: false, mess: 'Thông tin đăng nhập không chính xác.' });
+        }
         dataTokenNew = createTokens({ id: dataLogin?._id });
       }
       return res.status(200).json({ data: dataLogin, status: true, token: dataTokenNew ?? token });
