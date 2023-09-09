@@ -117,11 +117,11 @@ class UsersController {
             };
             return createTokens(dataConver);
           }).then((data: any) => {
-            return res.status(200).json({ mess: 'Đăng ký tài khoản thành công thành công.', token: data });
+            return res.status(200).json({ status: true, mess: 'Đăng ký tài khoản thành công thành công.', token: data });
           })
           .catch((err: any) => next(err));
       } else {
-        return res.status(400).json({ mess: 'Tên tài khoản đã tồn tại. Vui lòng chọn tài tên khác' });
+        return res.status(400).json({ status: false, mess: 'Tên tài khoản đã tồn tại. Vui lòng chọn tài tên khác' });
       }
     } catch (error) {
       next(error);
