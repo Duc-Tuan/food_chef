@@ -1,17 +1,20 @@
 const { sign, verify } = require('jsonwebtoken');
 
+const tokenkey: string = 'jwtsecretplschange';
+
 const createTokens = (data: any) => {
-  const accessToken = sign(data, 'jwtsecretplschange', {
-    expiresIn: '30d',
+  const accessToken = sign(data, tokenkey, {
+    expiresIn: '30s',
   });
   return accessToken;
 };
 
 const validateToken = (token: string) => {
   try {
-    const validToken = verify(token, 'jwtsecretplschange');
+    const validToken = verify(token, tokenkey);
     return {
-      validToken,
+      status: true,
+      id: validToken?.id,
     };
   } catch (err) {
     return {
@@ -21,4 +24,4 @@ const validateToken = (token: string) => {
   }
 };
 
-module.exports = { createTokens, validateToken };
+export { createTokens, validateToken };

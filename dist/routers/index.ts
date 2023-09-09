@@ -13,7 +13,7 @@ const versionRouter: string = '/api/v1';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function route(app: Application) {
   app.use(versionRouter + '/products', productRouter);
-  app.use(versionRouter + '/accounts', accountRouter);
+  app.use(versionRouter + '/auths', accountRouter);
   app.use(versionRouter + '/banners', BannerRouter);
   app.use(versionRouter + '/categories', CategoriesRouter);
   app.use(versionRouter + '/merchants', MerchantRouter);

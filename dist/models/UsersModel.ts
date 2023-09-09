@@ -7,12 +7,6 @@ const UserSchema = new SchemaUser(
   {
     ...component,
     userNickname: { type: String, length: 255, default: null },
-    userAdrressOrder: [
-      {
-        adrress: { type: String, length: 255, default: null },
-        default: { type: Boolean, default: false },
-      },
-    ],
     userType: { type: String, length: 255, default: 'User' },
     userRole: [{ type: SchemaUser.Types.ObjectId, ref: 'Roles', default: null }],
     userGender: { type: String, length: 255, default: null, enum: ['Nam', 'Nữ', 'Khác'] },

@@ -1,7 +1,9 @@
-import { Response, Request } from 'express';
+import { Request, Response } from 'express';
 import path from 'path';
 import { nameFile } from '../styles';
+import { encodePass } from '../utils/others/encode';
 import { mapIndex } from './Type';
+import { createTokens, validateToken } from '../jwt';
 const fs = require('fs');
 const Users = require('../models/UsersModel');
 
@@ -95,31 +97,63 @@ class UsersController {
 
   //[PUT] đăng ký tài khoản
   async createUser(req: Request, res: Response, next: any) {
-    if (req.file) {
-      req.body.userImage = 'http://' + process.env.URL + `/${nameFile.users}/` + req.file?.filename;
-      req.body.userImageMulter = req.file?.filename;
-    }
-    await mapIndex('US', Users, req);
-    const checkName = await Users.findOne({ userName: req.body.userName });
-    if (checkName === null) {
-      const dataUser = new Users(req.body);
-      dataUser
-        .save()
-        .then(() => {
-          return res.status(200).json({ mess: 'Đăng ký tài khoản thành công thành công.' });
-        })
-        .catch((err: any) => next(err));
-    } else {
-      if (req.file?.filename !== null) {
-        try {
-          const directoryPath =
-            path.dirname(path.dirname(__dirname)) + `\\dist\\assets\\others\\${nameFile.users}\\${req.file?.filename}`;
-          fs.unlinkSync(directoryPath);
-        } catch (e) {
-          console.error('Lỗi !!! Không tìm thấy đường dẫn để xóa ảnh');
-        }
+    try {
+      const { password, usename } = req.body;
+      if (req.file) {
+        req.body.userImage = 'http://' + process.env.URL + `/${nameFile.users}/` + req.file?.filename;
+        req.body.userImageMulter = req.file?.filename;
       }
-      return res.status(400).json({ mess: 'Tên tài khoản đã tồn tại. Vui lòng chọn tài tên khác' });
+      await mapIndex('US', Users, req);
+      const checkName = await Users.findOne({ userName: usename });
+      if (checkName === null) {
+        req.body.userPassword = encodePass(password);
+        req.body.userName = usename;
+        const dataUser = new Users(req.body);
+        dataUser
+          .save()
+          .then(async (data: any) => {
+            const dataConver = {
+              id: data?._id,
+            };
+            return createTokens(dataConver);
+          }).then((data: any) => {
+            return res.status(200).json({ mess: 'Đăng ký tài khoản thành công thành công.', token: data });
+          })
+          .catch((err: any) => next(err));
+      } else {
+        return res.status(400).json({ mess: 'Tên tài khoản đã tồn tại. Vui lòng chọn tài tên khác' });
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async login(req: Request, res: Response, next: any) {
+    const { password, usename } = req.body;
+    const hiddenData = {
+      userPassword: 0,
+      userType: 0,
+    };
+    try {
+      const tokenHeader = req?.headers.authorization;
+      let dataTokenNew: string | undefined = undefined;
+      let dataLogin: any;
+      if (tokenHeader && (password === undefined || usename === undefined)) {
+        const token = tokenHeader.slice(7);
+        const dataValidate = validateToken(token);
+        if (dataValidate?.status) {
+          dataLogin = await Users.findById({ _id: dataValidate?.id }, hiddenData);
+        } else {
+          return res.status(400).json(dataValidate);
+        }
+      } else {
+        req.body.userPassword = encodePass(password);
+        dataLogin = await Users.findOne({ userName: usename, userPassword: req.body.userPassword }, hiddenData);
+        dataTokenNew = createTokens({ id: dataLogin?._id });
+      }
+      return res.status(200).json({ data: dataLogin, status: true, token: dataTokenNew ?? tokenHeader?.slice(7) });
+    } catch (error) {
+      next(error);
     }
   }
 
