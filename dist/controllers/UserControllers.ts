@@ -207,7 +207,7 @@ class UsersController {
               .then(() => { return res.status(200).json({ status: true, mess: 'Đổi mật khẩu thành công.' }); })
               .catch((err: any) => { return next(err); });
           } else {
-            return res.status(404).json({ mess: 'Mật khẩu cũ không chính xác.', status: false });
+            return res.status(200).json({ mess: 'Mật khẩu cũ không chính xác.', status: false });
           }
         } else {
           Users.findByIdAndUpdate({ _id: id }, orther)
