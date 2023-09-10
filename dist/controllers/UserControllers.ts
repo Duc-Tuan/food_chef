@@ -194,7 +194,7 @@ class UsersController {
   //[PATCH] update thông tin user
   async updateUser(req: Request, res: Response, next: any) {
     const { id } = req.params;
-    const { userEmail, userName, passwordOld, passwordNew, userPassword, ...orther } = req.body;
+    const { userEmail, userName, code, index, userStatus, passwordOld, passwordNew, userPassword, ...orther } = req.body;
     try {
       const checkUser = await Users.findOne({ _id: id });
       if (checkUser) {
