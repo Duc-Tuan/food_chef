@@ -198,7 +198,9 @@ class UsersController {
     try {
       const checkUser = await Users.findOne({ _id: id });
       if (checkUser) {
-        Users.findByIdAndUpdate({ _id: id }, orther).then(() => { return res.status(200).json({ status: true, mess: 'Cập nhật thông tin thành công.' }) }).catch((err: any) => { return next(err) });
+        Users.findByIdAndUpdate({ _id: id }, orther)
+          .then(() => { return res.status(200).json({ status: true, mess: 'Cập nhật thông tin thành công.' }); })
+          .catch((err: any) => { return next(err); });
       } else {
         return res.status(404).json({ mess: 'Cập nhật thất bại.', status: false });
       }
