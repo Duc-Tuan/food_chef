@@ -190,6 +190,22 @@ class UsersController {
         return res.status(400).json({ mess: 'Không tìm thấy id của sản phẩm.' });
       });
   }
+
+  //[PATCH] update thông tin user
+  async updateUser(req: Request, res: Response, next: any) {
+    const { id } = req.params;
+    const { userEmail, userName, ...orther } = req.body;
+    try {
+      const checkUser = await Users.findOne({ _id: id });
+      if (checkUser) {
+        Users.findByIdAndUpdate({ _id: id }, orther).then(() => { return res.status(200).json({ status: true, mess: 'Cập nhật thông tin thành công.' }) }).catch((err: any) => { return next(err) });
+      } else {
+        return res.status(404).json({ mess: 'Cập nhật thất bại.', status: false });
+      }
+    } catch (error) {
+      return next(error);
+    }
+  }
 }
 
 module.exports = new UsersController();
