@@ -183,24 +183,37 @@ class UsersController {
         return Users.findByIdAndDelete({ _id: data?._id });
       })
       .then(() => {
-        return res.status(200).json({ mess: 'Xóa sản phẩm thành công.' });
+        return res.status(200).json({ mess: 'Xóa tài khoản thành công.' });
       })
       .catch((err: any) => {
         next(err);
-        return res.status(400).json({ mess: 'Không tìm thấy id của sản phẩm.' });
+        return res.status(400).json({ mess: 'Không tìm thấy id của tài khoản.' });
       });
   }
 
   //[PATCH] update thông tin user
   async updateUser(req: Request, res: Response, next: any) {
     const { id } = req.params;
-    const { userEmail, userName, ...orther } = req.body;
+    const { userEmail, userName, passwordOld, passwordNew, userPassword, ...orther } = req.body;
     try {
       const checkUser = await Users.findOne({ _id: id });
       if (checkUser) {
-        Users.findByIdAndUpdate({ _id: id }, orther)
-          .then(() => { return res.status(200).json({ status: true, mess: 'Cập nhật thông tin thành công.' }); })
-          .catch((err: any) => { return next(err); });
+        if (passwordOld) {
+          const encodePassword = encodePass(passwordOld);
+          const checkPassUser = await Users.findOne({ _id: id, userPassword: encodePassword });
+          if (checkPassUser) {
+            const encodePasswordNew = encodePass(passwordNew);
+            Users.findByIdAndUpdate({ _id: id }, { userPassword: encodePasswordNew })
+              .then(() => { return res.status(200).json({ status: true, mess: 'Đổi mật khẩu thành công.' }); })
+              .catch((err: any) => { return next(err); });
+          } else {
+            return res.status(404).json({ mess: 'Mật khẩu cũ không chính xác.', status: false });
+          }
+        } else {
+          Users.findByIdAndUpdate({ _id: id }, orther)
+            .then(() => { return res.status(200).json({ status: true, mess: 'Cập nhật thông tin thành công.' }); })
+            .catch((err: any) => { return next(err); });
+        }
       } else {
         return res.status(404).json({ mess: 'Cập nhật thất bại.', status: false });
       }
