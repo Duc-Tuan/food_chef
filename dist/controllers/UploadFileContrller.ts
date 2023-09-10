@@ -23,6 +23,7 @@ class UploadFileController {
     //   next(error);
     // }
     try {
+      console.log(req?.file);
       const dataFile = await uploadImages(req?.file, `images/${nameFile.productDetails}`);
       return res.status(200).json(dataFile);
     } catch (error) {
