@@ -4,7 +4,9 @@ import { Request, Response } from 'express';
 import { nameFile } from '../styles';
 import { uploadImages } from '../utils/firebase/funcFireBase';
 import { deleteImage, mapIndex } from './Type';
+import { historyActions } from '../utils/others/historyActions';
 const products = require('../models/ProductModel');
+const CommentsModel = require('../models/CommentsModel');
 
 class ProductController {
   //[GET] danh sách sản phẩm tất cả hoặc theo phân trang page&pageSize hoặc tìm kiếm theo query&status
@@ -121,6 +123,10 @@ class ProductController {
       dataProducts
         .save()
         .then(async (data: any) => {
+          await historyActions(req, 'Đã thêm mới sản phẩm', 'Products', data.code, data._id);
+          return data;
+        })
+        .then(() => {
           return res.status(200).json({ status: true, mess: 'Thêm sản phẩm thành công.' });
         })
         .catch((err: any) => next(err));
@@ -130,12 +136,11 @@ class ProductController {
   }
 
   //[DELETE] Xóa một sản phẩm theo id
-  deleteProduct(req: Request, res: Response, next: any) {
+  async deleteProduct(req: Request, res: Response, next: any) {
     const { id } = req.params;
-
     products
       .findById(id)
-      .then((data: any) => {
+      .then(async (data: any) => {
         if (data.productImageMulter?.length !== 0) {
           try {
             data.productImageMulter?.map((i: string) => {
@@ -145,73 +150,42 @@ class ProductController {
             console.error('Lỗi !!! Không tìm thấy đường dẫn để xóa ảnh');
           }
         }
+        const dataComments = await CommentsModel.find({ commentProductId: data?._id });
+        const comments = dataComments?.map((i: any) => i?._id);
+        await CommentsModel.deleteMany({ _id: comments });
+        await historyActions(req, 'Đã xóa sản phẩm', 'Products', data.code, undefined);
         return products.findByIdAndDelete({ _id: data?._id });
       })
       .then(() => {
-        return res.status(200).json({ mess: 'Xóa sản phẩm thành công.' });
+        return res.status(200).json({ status: true, mess: 'Xóa sản phẩm thành công.' });
       })
       .catch((err: any) => {
         next(err);
-        return res.status(400).json({ mess: 'Không tìm thấy id của sản phẩm.' });
+        return res.status(400).json({ status: false, mess: 'Không tìm thấy id của sản phẩm.' });
       });
   }
 
   //[DELETE] Xóa nhiều sản phẩm cùng lúc theo id
   async deleteProducts(req: Request, res: Response, next: any) {
-    const { ids }: { ids: any[] | string } = req.body;
-    if (ids) {
-      if (Array.isArray(ids)) {
-        try {
-          for (var iCount = 0; iCount < ids.length; iCount++) {
-            const checkData = await products.findOne({ _id: ids[iCount] });
-            if (checkData === null) {
-              res.status(400).json({
-                mess: 'Trong danh sách xóa có một số sản phẩm không tồn tại. Vui lòng kiểm tra lại.',
-                id: ids[iCount],
-              });
-              continue;
-            }
-          }
-
-          for (var iCount = 0; iCount < ids.length; iCount++) {
-            // eslint-disable-next-line @typescript-eslint/no-loop-func
-            await products.findByIdAndDelete({ _id: ids[iCount] }).then((data: any) => {
-              data.productImageMulter?.map((i: string) => {
-                deleteImage(nameFile.products, i);
-              });
-            });
-          }
-          return res.status(200).json({ mess: 'Xóa sản phẩm thành công.' });
-        } catch (error) {
-          return res
-            .status(400)
-            .json({ mess: 'Trong danh sách xóa có một số sản phẩm không tồn tại. Vui lòng kiểm tra lại.' });
-        }
-      } else {
-        products
-          .findById(ids)
-          .then((data: any) => {
-            if (data.productImageMulter?.length !== 0) {
-              try {
-                data.productImageMulter?.map((i: string) => {
-                  deleteImage(nameFile.products, i);
-                });
-              } catch (e) {
-                console.error('Lỗi!!! Không tìm thấy đường dẫn để xóa ảnh');
-              }
-            }
-            return products.findByIdAndDelete({ _id: data?._id });
-          })
-          .then(() => {
-            return res.status(200).json({ mess: 'Xóa sản phẩm thành công.' });
-          })
-          .catch((err: any) => {
-            next(err);
-            return res.status(400).json({ mess: 'Không tìm thấy id của sản phẩm.' });
+    try {
+      const { ids }: { ids: string[] } = req.body;
+      const dataDelete: string[] = [];
+      for (var iCount = 0; iCount < ids.length; iCount++) {
+        const checkData = await products.findOne({ _id: ids[iCount] });
+        if (checkData === null) {
+          return res.status(400).json({
+            mess: 'Trong danh sách xóa có một số sản phẩm không tồn tại. Vui lòng kiểm tra lại.',
+            id: ids[iCount],
           });
+        }
+        dataDelete.push(checkData?.code);
       }
-    } else {
-      return res.status(400).json({ mess: 'Không thể xóa danh sách sản phẩm khi không có id nào' });
+      return products.deleteMany({ _id: ids }).then(() => {
+        dataDelete?.map((i: any) => historyActions(req, 'Đã xóa sản phẩm', 'Products', i, undefined));
+        return res.status(200).json({ mess: 'Xóa danh sách sản phẩm thành công.', status: true });
+      });
+    } catch (error) {
+      return next(error);
     }
   }
 

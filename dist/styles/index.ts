@@ -12,8 +12,10 @@ export const maxSizeImage: number = maxSize * 1024 * 1024;
 
 export const nameFile: {
   products: string; banners: string; users: string, merchant: string, categories: string,
-  productDetails: string
+  productDetails: string,
+  shippers: string,
 } = {
+  shippers: 'shippers',
   products: 'products',
   banners: 'banners',
   merchant: 'merchant',

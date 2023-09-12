@@ -10,10 +10,12 @@ const OrderSchema = new SchemaOrder(
     orderShippings: { type: Number, default: 0, require: true },
     orderContent: [
       {
-        idProduct: { type: SchemaOrder.Types.ObjectId, ref: 'Products', default: null },
-        orderPromotion: { type: Number, default: null, require: true },
-        orderQty: { type: Number, default: null, require: true },
-        orderPrice: { type: Number, default: null, require: true },
+        _id: { type: SchemaOrder.Types.ObjectId, ref: 'Products', default: null },
+        name: { type: String, length: 255, default: null, require: true },
+        image: { type: String, length: 255, default: null, require: true },
+        promotion: { type: Number, default: null, require: true },
+        qty: { type: Number, default: null, require: true },
+        price: { type: Number, default: null, require: true },
       },
     ],
     orderSatus: {
@@ -33,7 +35,7 @@ const OrderSchema = new SchemaOrder(
     orderNotif: {
       type: Number,
       default:
-        'Sản phẩm sẽ được giao đến bạn nhanh nhất có thể khoản 1 ngày nếu cùng Tỉnh/Thành phố. Đơn hàng có thể giao chậm hơn nếu khách tỉnh. Cảm ơn bạn đã tin tưởng và đặt hàng từ cửa hàng của chúng tôi!!!',
+        'Sản phẩm sẽ được giao đến bạn nhanh nhất có thể khoản 1 ngày nếu cùng Tỉnh/Thành phố. Đơn hàng có thể giao chậm hơn nếu khác tỉnh. Cảm ơn bạn đã tin tưởng và đặt hàng từ cửa hàng của chúng tôi!!!',
       require: true,
     },
   },
