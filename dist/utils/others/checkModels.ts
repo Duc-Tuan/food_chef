@@ -1,7 +1,7 @@
 import { validateToken } from '../../jwt';
 const UsersModel = require('../../models/UsersModel');
 const ProductModel = require('../../models/ProductModel');
-const CartsModel = require('../../models/cartsModel');
+const CartsModel = require('../../models/CartsModel');
 
 export const checkUser = async (token: string) => {
   const dataValidate = validateToken(token);

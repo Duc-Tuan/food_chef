@@ -6,7 +6,7 @@ import { encodePass } from '../utils/others/encode';
 import { mapIndex } from './Type';
 const Users = require('../models/UsersModel');
 const AddressModel = require('../models/AddressModel');
-const cartsModel = require('../models/cartsModel');
+const cartsModel = require('../models/CartsModel');
 
 class UsersController {
   //[GET] danh sách tài khoản tất cả hoặc theo phân trang page&pageSize hoặc tìm kiếm theo query&status

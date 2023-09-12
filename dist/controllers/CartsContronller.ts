@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/indent */
 import { Request, Response } from 'express';
 import { checkCart, checkProduct, checkUser } from '../utils/others/checkModels';
-const CartsModel = require('../models/cartsModel');
+const CartsModel = require('../models/CartsModel');
 const ProductModel = require('../models/ProductModel');
 
 class CartsController {
