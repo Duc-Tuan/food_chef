@@ -108,7 +108,6 @@ class ProductController {
 
   //[PUT] Thêm mới sản phẩm
   async createProduct(req: Request, res: Response, next: any) {
-
     try {
       const dataArrayImageMulter: string[] = [];
       const dataFile = await uploadImages(req?.file, `images/${nameFile.products}`);
@@ -121,7 +120,7 @@ class ProductController {
       const dataProducts = new products(req.body);
       dataProducts
         .save()
-        .then(() => {
+        .then(async (data: any) => {
           return res.status(200).json({ status: true, mess: 'Thêm sản phẩm thành công.' });
         })
         .catch((err: any) => next(err));
@@ -198,7 +197,7 @@ class ProductController {
                   deleteImage(nameFile.products, i);
                 });
               } catch (e) {
-                console.error('Lỗi !!! Không tìm thấy đường dẫn để xóa ảnh');
+                console.error('Lỗi!!! Không tìm thấy đường dẫn để xóa ảnh');
               }
             }
             return products.findByIdAndDelete({ _id: data?._id });

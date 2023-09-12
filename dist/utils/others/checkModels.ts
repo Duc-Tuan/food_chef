@@ -2,6 +2,7 @@ import { validateToken } from '../../jwt';
 const UsersModel = require('../../models/UsersModel');
 const ProductModel = require('../../models/ProductModel');
 const CartsModel = require('../../models/CartsModel');
+const CommentsModel = require('../../models/CommentsModel');
 
 export const checkUser = async (token: string) => {
   const dataValidate = validateToken(token);
@@ -29,4 +30,12 @@ export const checkCart = async (idProduct: string, id: string) => {
   const isCart = await CartsModel.findOne({ cartuserid: id });
   const isEmty = isCart?.cartdata?.some((i: any) => (i?.productId).toString() === (idProduct).toString());
   return { status: isEmty };
+};
+
+export const checkComment = async (userId: string, id: string) => {
+  const isComment = await CommentsModel.findOne({ _id: id, commentUserId: userId });
+  if (isComment) {
+    return { status: true, id: isComment?._id };
+  }
+  return { status: false, mess: 'Không tìm thấy bình luận này.' };
 };
