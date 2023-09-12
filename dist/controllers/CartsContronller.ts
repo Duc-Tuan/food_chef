@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/indent */
 import { Request, Response } from 'express';
 import { checkCart, checkProduct, checkUser } from '../utils/others/checkModels';
+import { CartsContructor } from '../constructors/cartContructor';
 const CartsModel = require('../models/CartsModel');
 const ProductModel = require('../models/ProductModel');
 
@@ -14,24 +15,29 @@ class CartsController {
                 CartsModel
                     .find({ cartuserid: isUser?.id }, { index: 0, cartuserid: 0 })
                     .sort({ index: -1 })
-                    .then((data: any) => {
-                        const dataProduct: any[] = [];
-                        data[0]?.cartdata?.map(async (i: any) => {
-                            const product = await ProductModel.findOne({ _id: i?.productId });
-                            dataProduct.push({
-                                id: product?._id,
-                                productname: product?.productName,
-                                productImage: product?.productImage,
-                                productPromotion: product?.productPromotion,
-                                productPrice: product?.productPrice,
-                                qty: i?.qty,
-                            });
-                        });
-                        console.log(data[0].cartdata);
-                        data[0].cartdata = dataProduct;
-                        return data;
+                    .then(async (data: any) => {
+
+                        const ids = data[0]?.cartdata?.map((i: any) => i?.productId);
+                        const products = await ProductModel.find({ _id: [...ids] });
+
+                        return { data, products };
                     }).then((data: any) => {
-                        return res.status(200).json(...data);
+                        const dataCarts: any[] = [];
+                        for (let i = 0; i < data?.products.length; i++) {
+                            dataCarts.push({
+                                productname: data?.products[i].productName,
+                                productimage: data?.products[i].productImage,
+                                productpromotion: data?.products[i].productPromotion,
+                                productprice: data?.products[i].productPrice,
+                                qty: data?.data[0]?.cartdata[i]?.qty,
+                            });
+                        }
+                        const result = new CartsContructor(data?.data[0]?._id,
+                            data?.data[0]?.code,
+                            dataCarts,
+                            data?.data[0]?.createdAt,
+                            data?.data[0]?.updatedAt).data();
+                        return res.status(200).json(result);
                     })
                     .catch((err: any) => {
                         return next(err);
