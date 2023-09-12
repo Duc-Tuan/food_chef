@@ -4,6 +4,7 @@ export class CartsContructor {
   code: string;
 
   cartdata: {
+    _id: string;
     productname: string;
     productimage: string;
     productpromotion: Number;
@@ -16,6 +17,7 @@ export class CartsContructor {
   updatedAt: string;
 
   constructor(_id: string, code: string, cartdata: {
+    _id: string;
     productname: string,
     productimage: string,
     productpromotion: Number,
