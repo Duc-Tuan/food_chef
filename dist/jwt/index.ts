@@ -10,6 +10,12 @@ const createTokens = (data: any) => {
 };
 
 const validateToken = (token: string) => {
+  if (token === String(undefined)) {
+    return {
+      status: false,
+      mess: 'Không đăng nhập mà đòi dùng. Cút!!!',
+    };
+  }
   try {
     const validToken = verify(token, tokenkey);
     return {
