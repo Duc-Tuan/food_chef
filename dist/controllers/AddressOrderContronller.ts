@@ -1,81 +1,89 @@
 /* eslint-disable @typescript-eslint/indent */
 import { Request, Response } from 'express';
 import { mapIndex } from './Type';
+import { checkUser } from '../utils/others/checkModels';
 const AddressModel = require('../models/AddressModel');
+const UsersModel = require('../models/UsersModel');
 
 class AddressOrderController {
     //GET /addressOrder
     async index(req: Request, res: Response, next: any) {
         try {
-            var { page, pageSize, query, status } = req.query;
-            let dataSearch: any = undefined;
-            let queryData: any = undefined;
-
-            // query data search
-            if (status && query) {
-                dataSearch = { $regex: query, $options: 'i' };
-                queryData = {
-                    productStatus: status,
-                    $or: [
-                        { productName: dataSearch },
-                        { productPrice: typeof Number(query) === typeof 1 && !Number.isNaN(Number(query)) ? query : null },
-                        { productQty: typeof Number(query) === typeof 1 && !Number.isNaN(Number(query)) ? query : null },
-                    ],
-                };
-            } else if (query) {
-                dataSearch = { $regex: query, $options: 'im' };
-                queryData = {
-                    $or: [
-                        { productName: dataSearch },
-                        { productPrice: typeof Number(query) === typeof 1 && !Number.isNaN(Number(query)) ? query : null },
-                        { productQty: typeof Number(query) === typeof 1 && !Number.isNaN(Number(query)) ? query : null },
-                    ],
-                };
-            } else if (status) {
-                queryData = { productStatus: status };
-            }
-
-            var skipNumber: number = 0;
-            // get page, pageSize, query and status data
-            if (page || pageSize) {
-                const pageSizeNew = Number(pageSize);
-                let pageNew = Number(page);
-                if (pageNew <= 1) pageNew = 1;
-                skipNumber = (pageNew - 1) * pageSizeNew;
-
-                AddressModel
-                    .find()
-                    .skip(skipNumber)
-                    .sort({ index: -1 })
-                    .limit(pageSize)
-                    .then((data: any) => {
-                        AddressModel
-                            .countDocuments(queryData)
-                            .then((total: number) => {
-                                var totalPage: number = Math.ceil(total / pageSizeNew);
-                                return res.status(200).json({
-                                    paganition: {
-                                        totalPage: Number(totalPage),
-                                        currentPage: Number(page),
-                                        pageSize: Number(pageSize),
-                                        totalElement: Number(total),
-                                    },
-                                    data,
-                                });
-                            })
-                            .catch((error: any) => next(error));
-                    });
+            const token: string = String(req?.headers['x-food-access-token']);
+            const isUser = await checkUser(token);
+            if (isUser?.status) {
+                var { page, pageSize, query, status } = req.query;
+                let dataSearch: any = undefined;
+                let queryData: any = undefined;
+    
+                // query data search
+                if (status && query) {
+                    dataSearch = { $regex: query, $options: 'i' };
+                    queryData = {
+                        productStatus: status,
+                        $or: [
+                            { productName: dataSearch },
+                            { productPrice: typeof Number(query) === typeof 1 && !Number.isNaN(Number(query)) ? query : null },
+                            { productQty: typeof Number(query) === typeof 1 && !Number.isNaN(Number(query)) ? query : null },
+                        ],
+                    };
+                } else if (query) {
+                    dataSearch = { $regex: query, $options: 'im' };
+                    queryData = {
+                        $or: [
+                            { productName: dataSearch },
+                            { productPrice: typeof Number(query) === typeof 1 && !Number.isNaN(Number(query)) ? query : null },
+                            { productQty: typeof Number(query) === typeof 1 && !Number.isNaN(Number(query)) ? query : null },
+                        ],
+                    };
+                } else if (status) {
+                    queryData = { productStatus: status };
+                }
+    
+                var skipNumber: number = 0;
+                // get page, pageSize, query and status data
+                if (page || pageSize) {
+                    const pageSizeNew = Number(pageSize);
+                    let pageNew = Number(page);
+                    if (pageNew <= 1) pageNew = 1;
+                    skipNumber = (pageNew - 1) * pageSizeNew;
+    
+                    AddressModel
+                        .find({ address_useId: isUser?.id }, { address_useId: 0, index: 0 })
+                        .skip(skipNumber)
+                        .sort({ index: -1 })
+                        .limit(pageSize)
+                        .then((data: any) => {
+                            AddressModel
+                                .countDocuments(queryData)
+                                .then((total: number) => {
+                                    var totalPage: number = Math.ceil(total / pageSizeNew);
+                                    return res.status(200).json({
+                                        paganition: {
+                                            totalPage: Number(totalPage),
+                                            currentPage: Number(page),
+                                            pageSize: Number(pageSize),
+                                            totalElement: Number(total),
+                                        },
+                                        data,
+                                    });
+                                })
+                                .catch((error: any) => next(error));
+                        });
+                } else {
+                    // get all
+                    AddressModel
+                        .find({ address_useId: isUser?.id }, { address_useId: 0, index: 0 })
+                        .sort({ index: -1 })
+                        .then((data: any) => {
+                            return res.status(200).json(data);
+                        })
+                        .catch((err: any) => {
+                            return next(err);
+                        });
+                }
             } else {
-                // get all
-                AddressModel
-                    .find()
-                    .sort({ index: -1 })
-                    .then((data: any) => {
-                        return res.status(200).json(data);
-                    })
-                    .catch((err: any) => {
-                        return next(err);
-                    });
+                return res.status(400).json(isUser);
             }
         } catch (error) {
             return res.status(400).json(error);
@@ -102,17 +110,29 @@ class AddressOrderController {
     //PUT /addressOrder
     async createAddressOrder(req: Request, res: Response, next: any) {
         try {
-            if (req.body?.addressDefault === true) {
-                await AddressModel.findOneAndUpdate({ addressDefault: true }, { addressDefault: false });
+            const token: string = String(req?.headers['x-food-access-token']);
+            const isUser = await checkUser(token);
+            if (isUser?.status) {
+                const checkData = await UsersModel.findById(isUser?.id);
+                if (checkData) {
+                    if (req.body?.addressDefault === true) {
+                        await AddressModel.findOneAndUpdate({ addressDefault: true }, { addressDefault: false });
+                    }
+                    await mapIndex('ADR', AddressModel, req);
+                    req.body.address_useId = checkData?._id;
+                    const dataAddressOrder = new AddressModel(req.body);
+                    dataAddressOrder
+                        .save()
+                        .then(() => {
+                            return res.status(200).json({ status: true, mess: 'Thêm địa chỉ thành công.' });
+                        })
+                        .catch((err: any) => next(err));
+                } else {
+                    return res.status(400).json({ status: false, mess: 'Không tồn tại người dùng này. Cút!!!' });
+                }
+            } else {
+                return res.status(400).json({ status: false, mess: 'Đăng nhập hết hạn. Vui lòng đăng nhập lại' });
             }
-            await mapIndex('ADR', AddressModel, req);
-            const dataAddressOrder = new AddressModel(req.body);
-            dataAddressOrder
-                .save()
-                .then(() => {
-                    return res.status(200).json({ status: true, mess: 'Thêm địa chỉ thành công.' });
-                })
-                .catch((err: any) => next(err));
         } catch (error: any) {
             return res.status(400).send(error?.message);
         }
