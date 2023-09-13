@@ -12,6 +12,8 @@ const cpUpload = UploadDiver(storateProduct).fields([
   { name: 'productImageDetail', maxCount: 4 },
 ]);
 
+// Danh sách sản phẩm user thích
+router.get('/user-like', productController.getLikeProducts);
 // Xóa 1 sản phẩm id lấy trên param
 router.delete('/:id', productController.deleteProduct);
 // Sửa 1 sản phẩm id lấy trên param
