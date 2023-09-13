@@ -8,6 +8,67 @@ import { historyActions } from '../utils/others/historyActions';
 const products = require('../models/ProductModel');
 const CommentsModel = require('../models/CommentsModel');
 
+const getProducts = (res: Response,
+  next: any,
+  page: number,
+  pageSize: number,
+  queryData: any) => {
+  var skipNumber: number = 0;
+
+  if (page || pageSize) {
+    const pageSizeNew = Number(pageSize);
+    let pageNew = Number(page);
+    if (pageNew <= 1) pageNew = 1;
+    skipNumber = (pageNew - 1) * pageSizeNew;
+
+    return products
+      .find(queryData, {
+        productImageDetail: 0,
+        productImageMulter: 0,
+        productComment: 0,
+        productDescribes: 0,
+        productDesc: 0,
+      })
+      .skip(skipNumber)
+      .sort({ index: -1 })
+      .limit(pageSize)
+      .then((data: any) => {
+        products
+          .countDocuments(queryData)
+          .then((total: number) => {
+            var totalPage: number = Math.ceil(total / pageSizeNew);
+            return res.status(200).json({
+              paganition: {
+                totalPage: Number(totalPage),
+                currentPage: Number(page),
+                pageSize: Number(pageSize),
+                totalElement: Number(total),
+              },
+              data,
+            });
+          })
+          .catch((error: any) => next(error));
+      });
+  } else {
+    // get all
+    return products
+      .find(queryData, {
+        productImageDetail: 0,
+        productImageMulter: 0,
+        productComment: 0,
+        productDescribes: 0,
+        productDesc: 0,
+      })
+      .sort({ index: -1 })
+      .then((data: any) => {
+        return res.status(200).json(data);
+      })
+      .catch((err: any) => {
+        return next(err);
+      });
+  }
+};
+
 class ProductController {
   //[GET] /like-products
   async getLikeProducts(req: Request, res: Response, next: any) {
@@ -16,7 +77,6 @@ class ProductController {
       const { ids } = req.body;
       let dataSearch: any = undefined;
       let queryData: any = undefined;
-      var skipNumber: number = 0;
 
       if (ids && Array.isArray(ids) && query) {
         dataSearch = { $regex: query, $options: 'im' };
@@ -47,58 +107,7 @@ class ProductController {
 
       if (ids && !Array.isArray(ids)) return res.status(400).json({ status: false, mess: 'Truyền ids như lol bố đéo tìm. Cút!!!' });
 
-      if (page || pageSize) {
-        const pageSizeNew = Number(pageSize);
-        let pageNew = Number(page);
-        if (pageNew <= 1) pageNew = 1;
-        skipNumber = (pageNew - 1) * pageSizeNew;
-
-        products
-          .find(queryData, {
-            productImageDetail: 0,
-            productImageMulter: 0,
-            productComment: 0,
-            productDescribes: 0,
-            productDesc: 0,
-          })
-          .skip(skipNumber)
-          .sort({ index: -1 })
-          .limit(pageSize)
-          .then((data: any) => {
-            products
-              .countDocuments(queryData)
-              .then((total: number) => {
-                var totalPage: number = Math.ceil(total / pageSizeNew);
-                return res.status(200).json({
-                  paganition: {
-                    totalPage: Number(totalPage),
-                    currentPage: Number(page),
-                    pageSize: Number(pageSize),
-                    totalElement: Number(total),
-                  },
-                  data,
-                });
-              })
-              .catch((error: any) => next(error));
-          });
-      } else {
-        // get all
-        products
-          .find(queryData, {
-            productImageDetail: 0,
-            productImageMulter: 0,
-            productComment: 0,
-            productDescribes: 0,
-            productDesc: 0,
-          })
-          .sort({ index: -1 })
-          .then((data: any) => {
-            return res.status(200).json(data);
-          })
-          .catch((err: any) => {
-            return next(err);
-          });
-      }
+      return getProducts(res, next, Number(page), Number(pageSize), queryData);
     } catch (error) {
       return res.status(400).json(error);
     }
@@ -111,7 +120,6 @@ class ProductController {
 
       let dataSearch: any = undefined;
       let queryData: any = undefined;
-      var skipNumber: number = 0;
       // query data search
       if (status && query) {
         dataSearch = { $regex: query, $options: 'i' };
@@ -136,61 +144,7 @@ class ProductController {
         queryData = { productStatus: status };
       }
 
-      // get page, pageSize, query and status data
-      if (page || pageSize) {
-        const pageSizeNew = Number(pageSize);
-        let pageNew = Number(page);
-        if (pageNew <= 1) pageNew = 1;
-        skipNumber = (pageNew - 1) * pageSizeNew;
-
-        products
-          .find(queryData, {
-            productImageDetail: 0,
-            productImageMulter: 0,
-            productComment: 0,
-            productDescribes: 0,
-            productDesc: 0,
-          })
-          .skip(skipNumber)
-          .sort({ index: -1 })
-          .limit(pageSize)
-          .then((data: any) => {
-            products
-              .countDocuments(queryData)
-              .then((total: number) => {
-                var totalPage: number = Math.ceil(total / pageSizeNew);
-                return res.status(200).json({
-                  paganition: {
-                    totalPage: Number(totalPage),
-                    currentPage: Number(page),
-                    pageSize: Number(pageSize),
-                    totalElement: Number(total),
-                  },
-                  data,
-                });
-              })
-              .catch((error: any) => next(error));
-          });
-      } else {
-        // get all
-        products
-          .find(queryData, {
-            productImageDetail: 0,
-            productImageMulter: 0,
-            productComment: 0,
-            productDescribes: 0,
-            productDesc: 0,
-          })
-          .sort({ index: -1 })
-          .then((data: any) => {
-            return res.status(200).json(data);
-          })
-          .catch((err: any) => {
-            return next(err);
-          });
-      }
-
-
+      return getProducts(res, next, Number(page), Number(pageSize), queryData);
     } catch (error) {
       return res.status(400).json(error);
     }
