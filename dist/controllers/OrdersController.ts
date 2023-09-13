@@ -139,7 +139,7 @@ class ShippingsController {
             const token: string = String(req?.headers['x-food-access-token']);
             const isUser = await checkUser(token);
             if (isUser?.status) {
-                const isOrder = await OrderModel.findOne({ _id: id });
+                const isOrder = await OrderModel.findOne({ _id: id, orderIdUser: isUser?.id });
                 if (!isOrder) {
                     return res.status(400).json({ status: false, mess: 'Không tìm thấy id đơn hàng này.' });
                 }
