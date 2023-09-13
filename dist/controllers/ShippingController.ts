@@ -88,7 +88,7 @@ class ShippingsController {
         }
     }
 
-    //GET /shippings/:id
+    //PUT /shippings/:id
     async createShipping(req: Request, res: Response, next: any) {
         try {
             const dataFile = await uploadImages(req?.file, `images/${nameFile.shippers}`);
@@ -97,11 +97,30 @@ class ShippingsController {
             await mapIndex('SPE', ShipingModel, req);
             const shipingNew = new ShipingModel(req.body);
             await shipingNew.save();
-            const isAction = await historyActions(req, 'Đã thêm mới đối tác vận chuyển', 'shipers', req.body.shippername);
+            const isAction = await historyActions(req, 'Đã thêm mới đối tác vận chuyển', 'shipers', shipingNew?.code, shipingNew?._id);
             if (!isAction?.status) {
                 return res.status(400).json(isAction);
             }
             return res.status(200).json({ status: true, mess: 'Thêm đối tác vận chuyển thành công.' });
+        } catch (error) {
+            return next(error);
+        }
+    }
+
+    //DELETE /shippings/:id
+    async deleteShipping(req: Request, res: Response, next: any) {
+        try {
+            const { id } = req.params;
+            const isShipping = await ShipingModel.findById({ _id: id });
+            if (isShipping) {
+                await historyActions(req, 'Đã xóa đối tác vận chuyển', 'shipers', isShipping?.code);
+                return ShipingModel.findByIdAndDelete({ _id: isShipping?._id }).then(() => {
+                    return res.status(200).json({ status: true, mess: 'Xóa đối tác vận chuyển thành công.' });
+                });
+
+            } else {
+                return res.status(400).json({ status: false, mess: 'Xóa đối tác vận chuyển thất bại.' });
+            }
         } catch (error) {
             return next(error);
         }

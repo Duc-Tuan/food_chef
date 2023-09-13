@@ -20,7 +20,6 @@ export const historyActions = async (req: Request, content: string, model?: stri
     };
     const actionNew = new ActionsModel(data);
     await actionNew.save();
-    console.log('Oke');
     return { status: true };
   } else {
     return { status: false, mess: 'Vui lòng đăng nhập trước khi thực hiện hành động này.' };

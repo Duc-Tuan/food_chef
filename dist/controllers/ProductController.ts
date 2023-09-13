@@ -10,7 +10,7 @@ const CommentsModel = require('../models/CommentsModel');
 
 class ProductController {
   //[GET] danh sách sản phẩm tất cả hoặc theo phân trang page&pageSize hoặc tìm kiếm theo query&status
-  index(req: Request, res: Response, next: any) {
+  async index(req: Request, res: Response, next: any) {
     try {
       var { page, pageSize, query, status } = req.query;
       let dataSearch: any = undefined;

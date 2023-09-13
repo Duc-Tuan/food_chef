@@ -9,6 +9,7 @@ const BannerRouter = require('./router/BannerRouter');
 const CartRouter = require('./router/CartRouter');
 const CommentRouter = require('./router/CommentRouter');
 const ShippingRouter = require('./router/ShippingRouter');
+const OrdersRouter = require('./router/OrdersRouter');
 const siteRouter = require('./router/Site');
 
 const versionRouter: string = '/api/v1';
@@ -25,6 +26,7 @@ function route(app: Application) {
   app.use(versionRouter + '/comments', CommentRouter);
   app.use(versionRouter + '/carts', CartRouter);
   app.use(versionRouter + '/shippings', ShippingRouter);
+  app.use(versionRouter + '/orders', OrdersRouter);
   app.use(versionRouter + '/', siteRouter);
 }
 

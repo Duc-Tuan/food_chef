@@ -7,7 +7,9 @@ const OrderSchema = new SchemaOrder(
   {
     ...component,
     orderTotal: { type: Number, default: null, require: true },
-    orderShippings: { type: Number, default: 0, require: true },
+    orderFeeShipping: { type: Number, default: 0, require: true },
+    orderIdShipping: { type: SchemaOrder.Types.ObjectId, ref: 'shipers', default: null },
+    orderIdUser: { type: SchemaOrder.Types.ObjectId, ref: 'Users', default: null },
     orderContent: [
       {
         _id: { type: SchemaOrder.Types.ObjectId, ref: 'Products', default: null },
@@ -16,6 +18,21 @@ const OrderSchema = new SchemaOrder(
         promotion: { type: Number, default: null, require: true },
         qty: { type: Number, default: null, require: true },
         price: { type: Number, default: null, require: true },
+      },
+    ],
+    orderHistory: [
+      {
+        status: {
+          type: String,
+          default: 'ORDER',
+          enum: [
+            'ORDER',
+            'PREPARE',
+            'BEING_SHIPPED',
+            'DELIVERED',
+          ],
+        },
+        time: { type: Number, default: new Date() },
       },
     ],
     orderSatus: {
@@ -32,8 +49,20 @@ const OrderSchema = new SchemaOrder(
         'COMPLETED',
       ],
     },
+    orderPaymentMethods: {
+      method: {
+        type: String,
+        default: 'PAYMENT_DELIVERED',
+        enum: [
+          'PAYMENT_DELIVERED',
+          'PAYMENT_BANKCARD',
+        ],
+      },
+      status: { type: Boolean, default: false, require: true },
+      date: { type: Number, default: new Date().getTime() },
+    },
     orderNotif: {
-      type: Number,
+      type: String,
       default:
         'Sản phẩm sẽ được giao đến bạn nhanh nhất có thể khoản 1 ngày nếu cùng Tỉnh/Thành phố. Đơn hàng có thể giao chậm hơn nếu khác tỉnh. Cảm ơn bạn đã tin tưởng và đặt hàng từ cửa hàng của chúng tôi!!!',
       require: true,

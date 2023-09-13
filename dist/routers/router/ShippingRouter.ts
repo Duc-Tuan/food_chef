@@ -8,6 +8,8 @@ const ShippingController = require('../../controllers/ShippingController');
 router.put('/', upload.single('shiperImage'), ShippingController.createShipping);
 // thông tin chi tiết người giao hàng
 router.get('/:id', ShippingController.indexDetail);
+// thông tin chi tiết người giao hàng
+router.delete('/:id', ShippingController.deleteShipping);
 // Danh sách người giao hàng
 router.get('/', ShippingController.index);
 
