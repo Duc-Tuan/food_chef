@@ -7,6 +7,8 @@ const userController = require('../../controllers/UserControllers');
 router.put('/register', userController.createUser);
 // Đăng nhập
 router.post('/login', userController.login);
+// quên mật khẩu
+router.post('/reset', userController.resetPassword);
 // Cập nhật tài khoản
 router.patch('/:id', userController.updateUser);
 // Xóa tài khoản theo id

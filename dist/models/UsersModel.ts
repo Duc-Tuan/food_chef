@@ -20,6 +20,7 @@ const UserSchema = new SchemaUser(
     userName: { type: String, require: true, length: 255 },
     userPassword: { type: String, require: true, length: 255 },
     userStatus: { type: Boolean, default: true },
+    userCodeReset: { type: Number, default: null },
     userImage: {
       type: String,
       default: null,

@@ -1,9 +1,11 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import { Request, Response } from 'express';
 import { createTokens, validateToken } from '../jwt';
 import { nameFile } from '../styles';
 import { deleteFile } from '../utils/firebase/funcFireBase';
 import { encodePass } from '../utils/others/encode';
 import { mapIndex } from './Type';
+import { sendEmail } from '../utils/others/sendEmail';
 const Users = require('../models/UsersModel');
 const AddressModel = require('../models/AddressModel');
 const cartsModel = require('../models/CartsModel');
@@ -57,6 +59,7 @@ class UsersController {
         userType: 0,
         userRole: 0,
         userAdrressOrder: 0,
+        userCodeReset: 0,
       })
         .skip(skipNumber)
         .sort({ index: -1 })
@@ -85,6 +88,7 @@ class UsersController {
         userType: 0,
         userRole: 0,
         userAdrressOrder: 0,
+        userCodeReset: 0,
       })
         .sort({ index: -1 })
         .then((data: any) => {
@@ -146,6 +150,7 @@ class UsersController {
       userRole: 0,
       __v: 0,
       userImageMulter: 0,
+      userCodeReset: 0,
     };
     try {
       const token: string = String(req?.headers['x-food-access-token']);
@@ -236,6 +241,46 @@ class UsersController {
       return next(error);
     }
   }
+
+  //[POST] reset password
+  async resetPassword(req: Request, res: Response, next: any) {
+    try {
+      const { usename, email, code, id, passwordNew } = req.body;
+      const codeUser: number = Math.floor(Math.random() * 100000);
+      if (usename && email) {
+        const dataUser = await Users.findOne({ userName: usename, userEmail: email });
+        if (dataUser !== null) {
+          const isEmail: any = await sendEmail(dataUser?.userEmail, `<h3>Mã code của bạn là: ${codeUser}</h3>`);
+          if (isEmail?.status) {
+            await Users.findByIdAndUpdate({ _id: dataUser?.id }, { userCodeReset: codeUser });
+            isEmail.id = dataUser?.id;
+            return res.status(200).json(isEmail);
+          }
+        } else {
+          return res.status(200).json({ status: false, mess: 'Thông tin emal không chính xác.' });
+        }
+      } else if (code && id) {
+        const isUser = await Users.findOne({ userCodeReset: Number(code), _id: id });
+        if (isUser) {
+          return res.status(200).json({ status: true });
+        }
+        return res.status(200).json({ status: false });
+      } else if (passwordNew && id) {
+        const isUser = await Users.findOne({ _id: id });
+        if (isUser?.userCodeReset !== null) {
+          const pass = encodePass(passwordNew);
+          await Users.findByIdAndUpdate({ _id: isUser?.id }, { userPassword: pass, userCodeReset: null });
+          return res.status(200).json({ status: true, mess: 'Cập nhật mật khẩu thành công!!!' });
+        } else {
+          return res.status(404).json({ status: false, mess: 'Cút ngay.' });
+        }
+      }
+      return res.status(404).json({ status: false, mess: 'Cút' });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
 }
 
 module.exports = new UsersController();
