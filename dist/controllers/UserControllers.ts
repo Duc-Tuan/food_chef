@@ -270,7 +270,7 @@ class UsersController {
         if (isUser?.userCodeReset !== null) {
           const pass = encodePass(passwordNew);
           await Users.findByIdAndUpdate({ _id: isUser?.id }, { userPassword: pass, userCodeReset: null });
-          return res.status(200).json({ status: true, mess: 'Cập nhật mật khẩu thành công!!!' });
+          return res.status(200).json({ status: true, mess: 'Cập nhật mật khẩu thành công!!!', navigate: true });
         } else {
           return res.status(404).json({ status: false, mess: 'Cút ngay.' });
         }
