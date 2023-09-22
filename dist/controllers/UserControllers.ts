@@ -6,6 +6,7 @@ import { deleteFile } from '../utils/firebase/funcFireBase';
 import { encodePass } from '../utils/others/encode';
 import { mapIndex } from './Type';
 import { sendEmail } from '../utils/others/sendEmail';
+import { historyActions } from '../utils/others/historyActions';
 const Users = require('../models/UsersModel');
 const AddressModel = require('../models/AddressModel');
 const cartsModel = require('../models/CartsModel');
@@ -270,6 +271,7 @@ class UsersController {
         if (isUser?.userCodeReset !== null) {
           const pass = encodePass(passwordNew);
           await Users.findByIdAndUpdate({ _id: isUser?.id }, { userPassword: pass, userCodeReset: null });
+          await historyActions(req, 'Đã reset lại mật khẩu', 'reset', isUser?.code, isUser?._id);
           return res.status(200).json({ status: true, mess: 'Cập nhật mật khẩu thành công!!!', navigate: true });
         } else {
           return res.status(404).json({ status: false, mess: 'Cút ngay.' });

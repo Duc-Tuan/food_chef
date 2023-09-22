@@ -99,11 +99,11 @@ class ShippingsController {
                 };
 
                 const orderNew = new OrderModel(data);
-                await orderNew.save();
                 const isAction = await historyActions(req, 'Đã đặt một đơn hàng', 'Orders', orderNew?.code, orderNew?._id);
                 if (!isAction?.status) {
                     return res.status(400).json(isAction);
                 }
+                await orderNew.save();
                 return res.status(200).json({ status: true, mess: 'Đặt đơn hàng thành công.' });
             }
             return res.status(400).json(isUser);
