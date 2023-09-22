@@ -262,7 +262,7 @@ class UsersController {
       } else if (code && id) {
         const isUser = await Users.findOne({ userCodeReset: Number(code), _id: id });
         if (isUser) {
-          return res.status(200).json({ status: true });
+          return res.status(200).json({ status: true, password: true });
         }
         return res.status(200).json({ status: false });
       } else if (passwordNew && id) {
