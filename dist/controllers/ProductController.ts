@@ -73,11 +73,11 @@ class ProductController {
   //[GET] /like-products
   async getLikeProducts(req: Request, res: Response, next: any) {
     try {
-      var { page, pageSize, query, status } = req.query;
-      const { ids } = req.body;
+      const { body, params } = req.body;
+      var { page, pageSize, query, status } = params;
+      const { ids } = body;
 
       console.log(req.body);
-
 
       let dataSearch: any = undefined;
       let queryData: any = undefined;
