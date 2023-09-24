@@ -10,6 +10,7 @@ const CartRouter = require('./router/CartRouter');
 const CommentRouter = require('./router/CommentRouter');
 const ShippingRouter = require('./router/ShippingRouter');
 const OrdersRouter = require('./router/OrdersRouter');
+const HeartRouter = require('./router/HeartRouter');
 const siteRouter = require('./router/Site');
 
 const versionRouter: string = '/api/v1';
@@ -27,6 +28,7 @@ function route(app: Application) {
   app.use(versionRouter + '/carts', CartRouter);
   app.use(versionRouter + '/shippings', ShippingRouter);
   app.use(versionRouter + '/orders', OrdersRouter);
+  app.use(versionRouter + '/hearts', HeartRouter);
   app.use(versionRouter + '/', siteRouter);
 }
 
