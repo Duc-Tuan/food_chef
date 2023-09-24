@@ -54,7 +54,7 @@ class AddressOrderController {
             const isUser = await checkUser(token);
             if (isUser?.status) {
                 return HeartModel
-                    .find({ heart_useId: isUser?.id }, { heart_useId: 0, index: 0 })
+                    .findOne({ heart_useId: isUser?.id }, { heart_useId: 0, index: 0 })
                     .then((data: any) => {
                         return res.status(200).json(data);
                     })
