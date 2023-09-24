@@ -75,6 +75,10 @@ class ProductController {
     try {
       var { page, pageSize, query, status } = req.query;
       const { ids } = req.body;
+
+      console.log(req.body);
+
+
       let dataSearch: any = undefined;
       let queryData: any = undefined;
 
