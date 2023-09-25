@@ -26,6 +26,7 @@ class CartsController {
                         for (let i = 0; i < data?.products.length; i++) {
                             dataCarts.push({
                                 _id: data?.products[i]._id,
+                                code: data?.products[i].code,
                                 productname: data?.products[i].productName,
                                 productimage: data?.products[i].productImage,
                                 productpromotion: data?.products[i].productPromotion,
