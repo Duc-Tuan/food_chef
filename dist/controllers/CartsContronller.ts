@@ -69,7 +69,7 @@ class CartsController {
                             });
                             await isCart.save();
                         } else {
-                            isCart.cartdata.push({ productId: isProduct?.id, qty: Number(qty) });
+                            isCart.cartdata.unshift({ productId: isProduct?.id, qty: Number(qty) });
                             await isCart.save();
                         }
                         return res.status(200).json({ status: true, mess: 'Thêm vào giỏ hàng thành công.' });
