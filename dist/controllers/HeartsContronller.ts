@@ -24,7 +24,7 @@ class AddressOrderController {
                             const dataRemove: any[] = dataHeartsOld?.filter((i: any) => i.toString() !== isProduct?.id.toString())
                             dataHeartsNews = dataRemove;
                         } else {
-                            dataHeartsOld.push(isProduct?.id);
+                            dataHeartsOld.unshift(isProduct?.id);
                             dataHeartsNews = dataHeartsOld;
                         }
                         await HeartModel.findOneAndUpdate({ heart_useId: isUser?.id }, { heart_content: dataHeartsNews });
