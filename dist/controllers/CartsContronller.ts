@@ -91,6 +91,8 @@ class CartsController {
         try {
             const { productId } = req.body;
             const token: string = String(req?.headers['x-food-access-token']);
+            console.log('token: ', req?.headers['x-food-access-token']);
+
             const isUser = await checkUser(token);
             if (isUser?.status) {
                 const isCart = await CartsModel.findOne({ cartuserid: isUser?.id });
