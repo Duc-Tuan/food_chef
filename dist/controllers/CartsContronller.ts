@@ -89,10 +89,10 @@ class CartsController {
     //DELETE /carts
     async deleteCart(req: Request, res: Response, next: any) {
         try {
-            const { productId } = req.body;
+            const { productId } = req.params;
             const token: string = String(req?.headers['x-food-access-token']);
             console.log('token: ', req?.headers['x-food-access-token']);
-            console.log('req.body: ', req.body);
+            console.log('req.params: ', req.params);
 
             const isUser = await checkUser(token);
             if (isUser?.status) {

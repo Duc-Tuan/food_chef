@@ -8,6 +8,6 @@ router.get('/', CartsContronller.index);
 // Thêm sản phẩm vào giỏ hàng
 router.post('/', CartsContronller.postCart);
 // Thêm sản phẩm vào giỏ hàng
-router.delete('/', CartsContronller.deleteCart);
+router.delete('/:productId', CartsContronller.deleteCart);
 
 module.exports = router;
