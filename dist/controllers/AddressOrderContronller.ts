@@ -12,34 +12,16 @@ class AddressOrderController {
             const token: string = String(req?.headers['x-food-access-token']);
             const isUser = await checkUser(token);
             if (isUser?.status) {
-                var { page, pageSize, query, status } = req.query;
-                let dataSearch: any = undefined;
+                var { page, pageSize, addressDefault } = req.query;
                 let queryData: any = undefined;
-    
+
                 // query data search
-                if (status && query) {
-                    dataSearch = { $regex: query, $options: 'i' };
+                if (addressDefault) {
                     queryData = {
-                        productStatus: status,
-                        $or: [
-                            { productName: dataSearch },
-                            { productPrice: typeof Number(query) === typeof 1 && !Number.isNaN(Number(query)) ? query : null },
-                            { productQty: typeof Number(query) === typeof 1 && !Number.isNaN(Number(query)) ? query : null },
-                        ],
+                        addressDefault: true,
                     };
-                } else if (query) {
-                    dataSearch = { $regex: query, $options: 'im' };
-                    queryData = {
-                        $or: [
-                            { productName: dataSearch },
-                            { productPrice: typeof Number(query) === typeof 1 && !Number.isNaN(Number(query)) ? query : null },
-                            { productQty: typeof Number(query) === typeof 1 && !Number.isNaN(Number(query)) ? query : null },
-                        ],
-                    };
-                } else if (status) {
-                    queryData = { productStatus: status };
                 }
-    
+
                 var skipNumber: number = 0;
                 // get page, pageSize, query and status data
                 if (page || pageSize) {
@@ -47,7 +29,7 @@ class AddressOrderController {
                     let pageNew = Number(page);
                     if (pageNew <= 1) pageNew = 1;
                     skipNumber = (pageNew - 1) * pageSizeNew;
-    
+
                     AddressModel
                         .find({ address_useId: isUser?.id }, { address_useId: 0, index: 0 })
                         .skip(skipNumber)
@@ -73,7 +55,7 @@ class AddressOrderController {
                 } else {
                     // get all
                     AddressModel
-                        .find({ address_useId: isUser?.id }, { address_useId: 0, index: 0 })
+                        .find({ address_useId: isUser?.id, ...queryData }, { address_useId: 0, index: 0 })
                         .sort({ index: -1 })
                         .then((data: any) => {
                             return res.status(200).json(data);
