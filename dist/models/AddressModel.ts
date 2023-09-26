@@ -6,6 +6,7 @@ const SchemaAddressOrder = mongodbAddressOrder.Schema;
 const AddressSchemaOrder = new SchemaAddressOrder(
   {
     ...component,
+    addressNameReceiver: { type: String, length: 255, require: true, default: null },
     addressOrganReceive: { type: String, length: 255, require: true, default: null },
     addressPhoneReceive: { type: String, length: 255, require: true, default: null },
     addressTimeReceive: { type: String, length: 255, require: true, default: null },
