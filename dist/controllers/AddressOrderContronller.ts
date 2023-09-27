@@ -40,8 +40,6 @@ class AddressOrderController {
                                 .countDocuments(queryData)
                                 .then((total: number) => {
                                     var totalPage: number = Math.ceil(total / pageSizeNew);
-                                    const dataOld = [...data]?.filter((i: any) => i?.addressDefault === true);
-                                    const dataOlds = [...data]?.filter((i: any) => i?.addressDefault !== true);
                                     return res.status(200).json({
                                         paganition: {
                                             totalPage: Number(totalPage),
@@ -49,7 +47,7 @@ class AddressOrderController {
                                             pageSize: Number(pageSize),
                                             totalElement: Number(total),
                                         },
-                                        data: [...dataOld, ...dataOlds],
+                                        data,
                                     });
                                 })
                                 .catch((error: any) => next(error));
