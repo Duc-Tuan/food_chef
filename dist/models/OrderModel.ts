@@ -8,6 +8,7 @@ const OrderSchema = new SchemaOrder(
     ...component,
     orderTotal: { type: Number, default: null, require: true },
     orderFeeShipping: { type: Number, default: 0, require: true },
+    orderReceiverId: { type: SchemaOrder.Types.ObjectId, ref: 'addressOrders', default: null },
     orderIdShipping: { type: SchemaOrder.Types.ObjectId, ref: 'shipers', default: null },
     orderIdUser: { type: SchemaOrder.Types.ObjectId, ref: 'Users', default: null },
     orderContent: [
