@@ -58,7 +58,9 @@ class AddressOrderController {
                         .find({ address_useId: isUser?.id, ...queryData }, { address_useId: 0, index: 0 })
                         .sort({ index: -1 })
                         .then((data: any) => {
-                            return res.status(200).json(data);
+                            const dataOld = [...data]?.filter((i: any) => i?.addressDefault === true);
+                            const dataOlds = [...data]?.filter((i: any) => i?.addressDefault !== true);
+                            return res.status(200).json([...dataOld, ...dataOlds]);
                         })
                         .catch((err: any) => {
                             return next(err);
