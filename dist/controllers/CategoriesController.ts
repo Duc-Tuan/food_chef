@@ -17,7 +17,10 @@ class CategoriesController {
             if (query) {
                 dataSearch = { $regex: query, $options: 'i' };
                 queryData = {
-                    categoryName: dataSearch,
+                    $or: [
+                        { categoryName: dataSearch, },
+                        { code: dataSearch, }
+                    ],
                 };
             }
 
