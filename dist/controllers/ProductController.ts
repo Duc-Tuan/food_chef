@@ -120,7 +120,7 @@ class ProductController {
   //[GET] danh sách sản phẩm tất cả hoặc theo phân trang page&pageSize hoặc tìm kiếm theo query&status
   async index(req: Request, res: Response, next: any) {
     try {
-      var { page, pageSize, query, status } = req.query;
+      var { page, pageSize, query, status, categoryId } = req.query;
 
       let dataSearch: any = undefined;
       let queryData: any = undefined;
@@ -131,6 +131,18 @@ class ProductController {
           productStatus: status,
           $or: [
             { productName: dataSearch },
+            { code: dataSearch },
+            { productPrice: typeof Number(query) === typeof 1 && !Number.isNaN(Number(query)) ? query : null },
+            { productQty: typeof Number(query) === typeof 1 && !Number.isNaN(Number(query)) ? query : null },
+          ],
+        };
+      } else if (query && categoryId) {
+        dataSearch = { $regex: query, $options: 'im' };
+        queryData = {
+          productCategory: categoryId,
+          $or: [
+            { productName: dataSearch },
+            { code: dataSearch },
             { productPrice: typeof Number(query) === typeof 1 && !Number.isNaN(Number(query)) ? query : null },
             { productQty: typeof Number(query) === typeof 1 && !Number.isNaN(Number(query)) ? query : null },
           ],
@@ -140,12 +152,17 @@ class ProductController {
         queryData = {
           $or: [
             { productName: dataSearch },
+            { code: dataSearch },
             { productPrice: typeof Number(query) === typeof 1 && !Number.isNaN(Number(query)) ? query : null },
             { productQty: typeof Number(query) === typeof 1 && !Number.isNaN(Number(query)) ? query : null },
           ],
         };
       } else if (status) {
         queryData = { productStatus: status };
+      } else if (categoryId) {
+        queryData = {
+          productCategory: categoryId
+        };
       }
 
       return getProducts(res, next, Number(page), Number(pageSize), queryData);
