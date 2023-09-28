@@ -173,11 +173,22 @@ class ProductController {
 
   //[GET] chi tiết sản phẩm
   getProduct(req: Request, res: Response, next: any) {
-    const { id } = req.params;
-    products
-      .findOne({ _id: id }, { productImageMulter: 0 })
-      .then((data: any) => res.status(200).json(data))
-      .catch((err: any) => next(err));
+    try {
+      const { id } = req.params;
+      products
+        .findOne({ _id: id }, { productImageMulter: 0 })
+        .populate('productCategory')
+        .then((data: any) => {
+          const category = data?.productCategory?.categoryName;
+          const { productCategory, ...orther } = data;
+          const { _doc } = orther
+          _doc.productCategory = category;
+          return res.status(200).json(_doc)
+        })
+        .catch((err: any) => next(err));
+    } catch (error) {
+      next(error);
+    }
   }
 
   //[PUT] Thêm mới sản phẩm

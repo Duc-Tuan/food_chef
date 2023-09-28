@@ -9,7 +9,7 @@ const ProductSchema = new SchemaProducts(
     productName: { type: String, length: 255, require: true },
     productUnit: { type: String, length: 255, default: null },
     productPromotion: { type: SchemaProducts.Types.ObjectId, ref: 'Promotions', default: null },
-    productCategory: { type: SchemaProducts.Types.ObjectId, ref: 'Categories', default: null },
+    productCategory: { type: SchemaProducts.Types.ObjectId, ref: 'categories', default: null },
     productDesc: { type: String, length: 255, default: null },
     productDescribes: { type: String, default: null },
     productPrice: { type: Number, require: true, length: 15 },
