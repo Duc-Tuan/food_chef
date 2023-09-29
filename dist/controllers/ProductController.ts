@@ -200,6 +200,7 @@ class ProductController {
 
       req.body.productImage = dataFile.downloadURL;
       req.body.productImageMulter = dataArrayImageMulter;
+      req.body.productStatus = 'STOCKING';
 
       await mapIndex('SP', products, req);
       const dataProducts = new products(req.body);

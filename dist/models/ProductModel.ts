@@ -16,7 +16,7 @@ const ProductSchema = new SchemaProducts(
     productQty: { type: Number, require: true, length: 15 },
     productSource: { type: String, require: null, length: 255 },
     productWarehouse: { type: Number, require: true, length: 15 },
-    productStatus: { type: SchemaProducts.Types.ObjectId, default: null, ref: 'StatusProducts' },
+    productStatus: { type: String, require: true, default: 'STOCKING', enum: ['STOCKING', 'OUT_OF_STOCK'] },
     productImage: {
       type: String,
       default: null,
