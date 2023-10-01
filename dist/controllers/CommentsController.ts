@@ -86,7 +86,7 @@ class CommentsController {
             console.log(productId,
                 content);
 
-            const isProduct = await checkProduct(productId);
+            const isProduct = await checkProduct(String(productId));
             const token: string = String(req?.headers['x-food-access-token']);
             const isUser = await checkUser(token);
             if (isUser?.status && isProduct?.status) {
