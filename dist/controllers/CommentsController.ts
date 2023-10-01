@@ -83,10 +83,7 @@ class CommentsController {
         try {
             const { productId } = req.params;
             const { content } = req.body;
-            console.log(productId,
-                content);
-
-            const isProduct = await checkProduct(String(productId));
+            const isProduct = await checkProduct(productId);
             const token: string = String(req?.headers['x-food-access-token']);
             const isUser = await checkUser(token);
             if (isUser?.status && isProduct?.status) {
@@ -97,7 +94,7 @@ class CommentsController {
 
                 const commentNew = new CommentsModel(req.body);
                 await commentNew.save();
-                return res.status(400).json({ status: true, mess: 'Gửi bình luận thành công.' });
+                return res.status(200).json({ status: true, mess: 'Gửi bình luận thành công.' });
             }
             return res.status(400).json(!isUser?.status ? isUser : isProduct);
         } catch (error) {
