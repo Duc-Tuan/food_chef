@@ -9,9 +9,9 @@ class CommentsController {
     //GET /comments
     async index(req: Request, res: Response, next: any) {
         try {
-            const { productId, userId } = req.body;
-            const { page, pageSize } = req.query;
-            const isProduct = await checkProduct(productId);
+            const { page, pageSize, productId, userId } = req.query;
+
+            const isProduct = await checkProduct(String(productId));
             if (isProduct?.status) {
                 var skipNumber: number = 0;
                 const fillter = userId ? {
