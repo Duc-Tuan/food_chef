@@ -81,7 +81,8 @@ class CommentsController {
     //PUT /comments
     async createComment(req: Request, res: Response, next: any) {
         try {
-            const { productId, content } = req.body;
+            const { productId } = req.params;
+            const { content } = req.body;
             const isProduct = await checkProduct(productId);
             const token: string = String(req?.headers['x-food-access-token']);
             const isUser = await checkUser(token);

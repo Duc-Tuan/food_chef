@@ -4,7 +4,7 @@ var router = express.Router();
 const CommentsController = require('../../controllers/CommentsController');
 
 // thêm comments
-router.post('/', CommentsController.createComment);
+router.post('/:productId', CommentsController.createComment);
 // Danh sách comments
 router.get('/', CommentsController.index);
 // Cập nhật comments
