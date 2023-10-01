@@ -83,6 +83,9 @@ class CommentsController {
         try {
             const { productId } = req.params;
             const { content } = req.body;
+            console.log(productId,
+                content);
+
             const isProduct = await checkProduct(productId);
             const token: string = String(req?.headers['x-food-access-token']);
             const isUser = await checkUser(token);
