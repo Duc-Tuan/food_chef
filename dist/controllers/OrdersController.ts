@@ -92,6 +92,20 @@ class ShippingsController {
         }
     }
 
+    //GET /:id
+    async getDetail(req: Request, res: Response, next: any) {
+        try {
+            const { id } = req.params;
+            return OrderModel.findOne({ _id: id }, { orderIdUser: 0, index: 0 }).then(async (data: any) => {
+                const dataAddress = await AddressModel.findOne({ _id: data?.orderReceiverId });
+                data.orderReceiver = dataAddress;
+                return res.status(200).json(data)
+            })
+        } catch (error) {
+            next(error);
+        }
+    }
+
     //POST /orders
     async createOrder(req: Request, res: Response, next: any) {
         try {

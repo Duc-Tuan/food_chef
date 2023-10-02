@@ -3,6 +3,8 @@ var router = express.Router();
 
 const OrdersController = require('../../controllers/OrdersController');
 
+// chi tiết đơn hàng
+router.get('/:id', OrdersController.getDetail);
 // Thêm đơn hàng
 router.put('/', OrdersController.createOrder);
 // Cập nhật đơn hàng
