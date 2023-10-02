@@ -9,7 +9,7 @@ class ShippingsController {
     //GET /orders
     async index(req: Request, res: Response, next: any) {
         try {
-            var { page, pageSize, query } = req.query;
+            var { page, pageSize, query, orderSatus } = req.query;
             let dataSearch: any = undefined;
             let queryData: any = undefined;
             const token: string = String(req?.headers['x-food-access-token']);
@@ -17,13 +17,24 @@ class ShippingsController {
 
             if (isUser?.status) {
                 // query data search
-                if (query) {
+                if (query && orderSatus) {
                     dataSearch = { $regex: query, $options: 'i' };
                     queryData = {
-                        orderIdUser: isUser?.id,
+                        $or: [
+                            { orderSatus: orderSatus },
+                            { code: dataSearch },
+                        ],
+                    };
+                } else if (query) {
+                    dataSearch = { $regex: query, $options: 'i' };
+                    queryData = {
                         $or: [
                             { code: dataSearch },
                         ],
+                    };
+                } else if (orderSatus) {
+                    queryData = {
+                        orderSatus: orderSatus
                     };
                 }
 
@@ -36,13 +47,13 @@ class ShippingsController {
                     skipNumber = (pageNew - 1) * pageSizeNew;
 
                     return OrderModel
-                        .find(queryData, { orderIdShipping: 0, index: 0, orderIdUser: 0 })
+                        .find({ orderIdUser: isUser?.id, ...queryData }, { orderIdShipping: 0, index: 0, orderIdUser: 0 })
                         .skip(skipNumber)
                         .sort({ index: -1 })
                         .limit(pageSize)
                         .then((data: any) => {
                             OrderModel
-                                .countDocuments(queryData)
+                                .countDocuments({ orderIdUser: isUser?.id, ...queryData })
                                 .then((total: number) => {
                                     var totalPage: number = Math.ceil(total / pageSizeNew);
                                     return res.status(200).json({
