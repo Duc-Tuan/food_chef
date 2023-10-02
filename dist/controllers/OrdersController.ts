@@ -4,6 +4,7 @@ import { checkUser } from '../utils/others/checkModels';
 import { historyActions } from '../utils/others/historyActions';
 import { mapIndex } from './Type';
 const OrderModel = require('../models/OrderModel');
+const AddressModel = require('../models/AddressModel');
 
 class ShippingsController {
     //GET /orders
@@ -34,7 +35,10 @@ class ShippingsController {
                     };
                 } else if (orderSatus) {
                     queryData = {
-                        orderSatus: orderSatus
+                        $or: [
+                            { orderSatus: orderSatus },
+                            { code: dataSearch },
+                        ],
                     };
                 }
 
@@ -51,7 +55,12 @@ class ShippingsController {
                         .skip(skipNumber)
                         .sort({ index: -1 })
                         .limit(pageSize)
-                        .then((data: any) => {
+                        .then(async (data: any) => {
+                            for (var i = 0; i < data.length; i++) {
+                                const orderReceiver = await AddressModel.findOne({ _id: data[i]?.orderReceiverId });
+                                data[i].orderReceiver = orderReceiver;
+                            }
+
                             OrderModel
                                 .countDocuments({ orderIdUser: isUser?.id, ...queryData })
                                 .then((total: number) => {

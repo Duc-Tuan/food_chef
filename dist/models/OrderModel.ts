@@ -11,6 +11,17 @@ const OrderSchema = new SchemaOrder(
     orderReceiverId: { type: SchemaOrder.Types.ObjectId, ref: 'addressOrders', default: null },
     orderIdShipping: { type: SchemaOrder.Types.ObjectId, ref: 'shipers', default: null },
     orderIdUser: { type: SchemaOrder.Types.ObjectId, ref: 'Users', default: null },
+    orderReceiver: {
+      addressNameReceiver: { type: String, default: null },
+      addressOrganReceive: { type: String, default: null },
+      addressPhoneReceive: { type: String, default: null },
+      addressTimeReceive: { type: String, default: null },
+      addressDetail: { type: String, default: null },
+      addressWards: { type: String, default: null },
+      addressVillage: { type: String, default: null },
+      addressDistrict: { type: String, default: null },
+      addressCity: { type: String, default: null },
+    },
     orderContent: [
       {
         _id: { type: SchemaOrder.Types.ObjectId, ref: 'Products', default: null },
