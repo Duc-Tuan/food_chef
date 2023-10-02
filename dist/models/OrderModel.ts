@@ -40,14 +40,13 @@ const OrderSchema = new SchemaOrder(
       type: String,
       default: 'WAIT_FOR_CONFIRMATION',
       enum: [
-        'CANCELED',
         'WAIT_FOR_CONFIRMATION',
         'CONFIRMED',
         'DELIVERED_ONLY',
         'DELIVERED',
         'SUSS_DELIVERY',
-        'ITEM_RECEIVED',
         'COMPLETED',
+        'CANCELED',
       ],
     },
     orderPaymentMethods: {
