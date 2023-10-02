@@ -51,16 +51,11 @@ class ShippingsController {
                     skipNumber = (pageNew - 1) * pageSizeNew;
 
                     return OrderModel
-                        .find({ orderIdUser: isUser?.id, ...queryData }, { orderIdShipping: 0, index: 0, orderIdUser: 0 })
+                        .find({ orderIdUser: isUser?.id, ...queryData }, { orderIdShipping: 0, index: 0, orderIdUser: 0, orderReceiver: 0, orderReceiverId: 0 })
                         .skip(skipNumber)
                         .sort({ index: -1 })
                         .limit(pageSize)
                         .then(async (data: any) => {
-                            for (var i = 0; i < data.length; i++) {
-                                const orderReceiver = await AddressModel.findOne({ _id: data[i]?.orderReceiverId });
-                                data[i].orderReceiver = orderReceiver;
-                            }
-
                             OrderModel
                                 .countDocuments({ orderIdUser: isUser?.id, ...queryData })
                                 .then((total: number) => {
@@ -80,7 +75,7 @@ class ShippingsController {
                 } else {
                     // get all
                     return OrderModel
-                        .find({ orderIdUser: isUser?.id }, { orderIdShipping: 0, index: 0, orderIdUser: 0 })
+                        .find({ orderIdUser: isUser?.id }, { orderIdShipping: 0, index: 0, orderIdUser: 0, orderReceiver: 0, orderReceiverId: 0 })
                         .sort({ index: -1 })
                         .then((data: any) => {
                             return res.status(200).json(data);
