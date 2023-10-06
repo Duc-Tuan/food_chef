@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { uploadImages } from '../utils/firebase/funcFireBase';
 import { mapIndex } from './Type';
 import { nameFile } from '../styles';
+import { checkEmployeeRights } from '../utils/others/checkModels';
 const CategoriesModel = require('../models/CategoriesModel');
 
 class CategoriesController {
@@ -76,19 +77,24 @@ class CategoriesController {
     //PUT /categories
     async createCategories(req: Request, res: Response, next: any) {
         try {
-            const dataFile = await uploadImages(req?.file, `images/${nameFile.categories}`);
-            req.body.categoryImageMulter = dataFile.nameFile;
+            const isCheck: any = await checkEmployeeRights(req, "CreateCategories");
+            const { roles, ...orther } = isCheck
+            if (isCheck?.status) {
+                const dataFile = await uploadImages(req?.file, `images/${nameFile.categories}`);
+                req.body.categoryImageMulter = dataFile.nameFile;
 
-            req.body.categoryImage = dataFile.downloadURL;
+                req.body.categoryImage = dataFile.downloadURL;
 
-            await mapIndex('CT', CategoriesModel, req);
-            const dataCategories = new CategoriesModel(req.body);
-            dataCategories
-                .save()
-                .then(() => {
-                    return res.status(200).json({ mess: 'Thêm thể loại thành công.' });
-                })
-                .catch((err: any) => next(err));
+                await mapIndex('CT', CategoriesModel, req);
+                const dataCategories = new CategoriesModel(req.body);
+                dataCategories
+                    .save()
+                    .then(() => {
+                        return res.status(200).json({ mess: 'Thêm thể loại thành công.' });
+                    })
+                    .catch((err: any) => next(err));
+            }
+            return res.status(400).json(orther)
         } catch (error: any) {
             return res.status(400).send(error?.message);
         }

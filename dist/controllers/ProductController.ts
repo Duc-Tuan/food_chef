@@ -5,6 +5,7 @@ import { nameFile } from '../styles';
 import { uploadImages } from '../utils/firebase/funcFireBase';
 import { deleteImage, mapIndex } from './Type';
 import { historyActions } from '../utils/others/historyActions';
+import { checkEmployeeRights } from '../utils/others/checkModels';
 const products = require('../models/ProductModel');
 const CommentsModel = require('../models/CommentsModel');
 
@@ -194,26 +195,31 @@ class ProductController {
   //[PUT] Thêm mới sản phẩm
   async createProduct(req: Request, res: Response, next: any) {
     try {
-      const dataArrayImageMulter: string[] = [];
-      const dataFile = await uploadImages(req?.file, `images/${nameFile.products}`);
-      dataArrayImageMulter.push(dataFile.nameFile);
+      const isCheck: any = await checkEmployeeRights(req, "CreateProducts");
+      const { roles, ...orther } = isCheck
+      if (isCheck?.status) {
+        const dataArrayImageMulter: string[] = [];
+        const dataFile = await uploadImages(req?.file, `images/${nameFile.products}`);
+        dataArrayImageMulter.push(dataFile.nameFile);
 
-      req.body.productImage = dataFile.downloadURL;
-      req.body.productImageMulter = dataArrayImageMulter;
-      req.body.productStatus = 'STOCKING';
+        req.body.productImage = dataFile.downloadURL;
+        req.body.productImageMulter = dataArrayImageMulter;
+        req.body.productStatus = 'STOCKING';
 
-      await mapIndex('SP', products, req);
-      const dataProducts = new products(req.body);
-      dataProducts
-        .save()
-        .then(async (data: any) => {
-          await historyActions(req, 'Đã thêm mới sản phẩm', 'Products', data.code, data._id);
-          return data;
-        })
-        .then(() => {
-          return res.status(200).json({ status: true, mess: 'Thêm sản phẩm thành công.' });
-        })
-        .catch((err: any) => next(err));
+        await mapIndex('SP', products, req);
+        const dataProducts = new products(req.body);
+        dataProducts
+          .save()
+          .then(async (data: any) => {
+            await historyActions(req, 'Đã thêm mới sản phẩm', 'Products', data.code, data._id);
+            return data;
+          })
+          .then(() => {
+            return res.status(200).json({ status: true, mess: 'Thêm sản phẩm thành công.' });
+          })
+          .catch((err: any) => next(err));
+      }
+      return res.status(400).json(orther);
     } catch (error: any) {
       return res.status(400).send(error?.message);
     }
@@ -221,53 +227,67 @@ class ProductController {
 
   //[DELETE] Xóa một sản phẩm theo id
   async deleteProduct(req: Request, res: Response, next: any) {
-    const { id } = req.params;
-    products
-      .findById(id)
-      .then(async (data: any) => {
-        if (data.productImageMulter?.length !== 0) {
-          try {
-            data.productImageMulter?.map((i: string) => {
-              deleteImage(nameFile.products, i);
-            });
-          } catch (e) {
-            console.error('Lỗi !!! Không tìm thấy đường dẫn để xóa ảnh');
-          }
-        }
-        const dataComments = await CommentsModel.find({ commentProductId: data?._id });
-        const comments = dataComments?.map((i: any) => i?._id);
-        await CommentsModel.deleteMany({ _id: comments });
-        await historyActions(req, 'Đã xóa sản phẩm', 'Products', data.code, undefined);
-        return products.findByIdAndDelete({ _id: data?._id });
-      })
-      .then(() => {
-        return res.status(200).json({ status: true, mess: 'Xóa sản phẩm thành công.' });
-      })
-      .catch((err: any) => {
-        next(err);
-        return res.status(400).json({ status: false, mess: 'Không tìm thấy id của sản phẩm.' });
-      });
+    try {
+      const isCheck: any = await checkEmployeeRights(req, "DeleteProducts");
+      const { roles, ...orther } = isCheck
+      if (isCheck?.status) {
+        const { id } = req.params;
+        products
+          .findById(id)
+          .then(async (data: any) => {
+            if (data.productImageMulter?.length !== 0) {
+              try {
+                data.productImageMulter?.map((i: string) => {
+                  deleteImage(nameFile.products, i);
+                });
+              } catch (e) {
+                console.error('Lỗi !!! Không tìm thấy đường dẫn để xóa ảnh');
+              }
+            }
+            const dataComments = await CommentsModel.find({ commentProductId: data?._id });
+            const comments = dataComments?.map((i: any) => i?._id);
+            await CommentsModel.deleteMany({ _id: comments });
+            await historyActions(req, 'Đã xóa sản phẩm', 'Products', data.code, undefined);
+            return products.findByIdAndDelete({ _id: data?._id });
+          })
+          .then(() => {
+            return res.status(200).json({ status: true, mess: 'Xóa sản phẩm thành công.' });
+          })
+          .catch((err: any) => {
+            next(err);
+            return res.status(400).json({ status: false, mess: 'Không tìm thấy id của sản phẩm.' });
+          });
+      }
+      return res.status(400).json(orther);
+    } catch (error) {
+      return next(error);
+    }
   }
 
   //[DELETE] Xóa nhiều sản phẩm cùng lúc theo id
   async deleteProducts(req: Request, res: Response, next: any) {
     try {
-      const { ids }: { ids: string[] } = req.body;
-      const dataDelete: string[] = [];
-      for (var iCount = 0; iCount < ids.length; iCount++) {
-        const checkData = await products.findOne({ _id: ids[iCount] });
-        if (checkData === null) {
-          return res.status(400).json({
-            mess: 'Trong danh sách xóa có một số sản phẩm không tồn tại. Vui lòng kiểm tra lại.',
-            id: ids[iCount],
-          });
+      const isCheck: any = await checkEmployeeRights(req, "DeleteProducts");
+      const { roles, ...orther } = isCheck
+      if (isCheck?.status) {
+        const { ids }: { ids: string[] } = req.body;
+        const dataDelete: string[] = [];
+        for (var iCount = 0; iCount < ids.length; iCount++) {
+          const checkData = await products.findOne({ _id: ids[iCount] });
+          if (checkData === null) {
+            return res.status(400).json({
+              mess: 'Trong danh sách xóa có một số sản phẩm không tồn tại. Vui lòng kiểm tra lại.',
+              id: ids[iCount],
+            });
+          }
+          dataDelete.push(checkData?.code);
         }
-        dataDelete.push(checkData?.code);
+        return products.deleteMany({ _id: ids }).then(() => {
+          dataDelete?.map((i: any) => historyActions(req, 'Đã xóa sản phẩm', 'Products', i, undefined));
+          return res.status(200).json({ mess: 'Xóa danh sách sản phẩm thành công.', status: true });
+        });
       }
-      return products.deleteMany({ _id: ids }).then(() => {
-        dataDelete?.map((i: any) => historyActions(req, 'Đã xóa sản phẩm', 'Products', i, undefined));
-        return res.status(200).json({ mess: 'Xóa danh sách sản phẩm thành công.', status: true });
-      });
+      return res.status(400).json(orther);
     } catch (error) {
       return next(error);
     }
@@ -275,70 +295,79 @@ class ProductController {
 
   //[PATCH] Sửa sản phẩm theo id
   async EditProduct(req: Request, res: Response, next: any) {
-    const { id } = req.params;
-    const { productImage, productImageDetail }: any = req.files;
+    try {
+      const isCheck: any = await checkEmployeeRights(req, "EditProducts");
+      const { roles, ...orther } = isCheck
+      if (isCheck?.status) {
+        const { id } = req.params;
+        const { productImage, productImageDetail }: any = req.files;
 
-    const dataOld = await products.findOne({ _id: id });
-    if (dataOld) {
-      if (dataOld.productImageMulter?.length !== 0) {
-        if (productImage && productImageDetail) {
-          await dataOld.productImageMulter?.map((i: string) => {
-            deleteImage(nameFile.products, i);
-          });
+        const dataOld = await products.findOne({ _id: id });
+        if (dataOld) {
+          if (dataOld.productImageMulter?.length !== 0) {
+            if (productImage && productImageDetail) {
+              await dataOld.productImageMulter?.map((i: string) => {
+                deleteImage(nameFile.products, i);
+              });
 
-          const dataArrayImageMulter: string[] = [];
-          const dataArrayImage: string[] = [];
-          req.body.productImage = 'http://' + process.env.URL + `/${nameFile.products}/` + productImage[0]?.filename;
-          dataArrayImageMulter.push(productImage[0]?.filename);
-          productImageDetail?.map((item: any) => {
-            dataArrayImage.push('http://' + process.env.URL + `/${nameFile.products}/` + item?.filename);
-            dataArrayImageMulter.push(item?.filename);
-          });
-          req.body.productImageDetail = dataArrayImage;
-          req.body.productImageMulter = dataArrayImageMulter;
-        } else if (productImage && productImageDetail === undefined) {
-          deleteImage(nameFile.products, dataOld.productImageMulter[0]);
-          req.body.productImage = 'http://' + process.env.URL + `/${nameFile.products}/` + productImage[0]?.filename;
-          dataOld.productImageMulter[0] = productImage[0]?.filename;
-          req.body.productImageMulter = [...dataOld.productImageMulter];
-        } else if (productImageDetail && productImage === undefined) {
-          const ImageOld = dataOld.productImageMulter[0];
-          await dataOld.productImageMulter?.map((i: string) => {
-            deleteImage(nameFile.products, i);
-          });
+              const dataArrayImageMulter: string[] = [];
+              const dataArrayImage: string[] = [];
+              req.body.productImage = 'http://' + process.env.URL + `/${nameFile.products}/` + productImage[0]?.filename;
+              dataArrayImageMulter.push(productImage[0]?.filename);
+              productImageDetail?.map((item: any) => {
+                dataArrayImage.push('http://' + process.env.URL + `/${nameFile.products}/` + item?.filename);
+                dataArrayImageMulter.push(item?.filename);
+              });
+              req.body.productImageDetail = dataArrayImage;
+              req.body.productImageMulter = dataArrayImageMulter;
+            } else if (productImage && productImageDetail === undefined) {
+              deleteImage(nameFile.products, dataOld.productImageMulter[0]);
+              req.body.productImage = 'http://' + process.env.URL + `/${nameFile.products}/` + productImage[0]?.filename;
+              dataOld.productImageMulter[0] = productImage[0]?.filename;
+              req.body.productImageMulter = [...dataOld.productImageMulter];
+            } else if (productImageDetail && productImage === undefined) {
+              const ImageOld = dataOld.productImageMulter[0];
+              await dataOld.productImageMulter?.map((i: string) => {
+                deleteImage(nameFile.products, i);
+              });
 
-          const dataArrayImage: string[] = [];
-          const dataArrayImageMulter: string[] = [ImageOld];
-          productImageDetail?.map((item: any) => {
-            dataArrayImage.push('http://' + process.env.URL + `/${nameFile.products}/` + item?.filename);
-            dataArrayImageMulter.push(item?.filename);
-          });
-          req.body.productImageMulter = dataArrayImageMulter;
-        }
-      } else {
-        if (productImage || productImageDetail) {
-          const dataArrayImageMulter: string[] = [];
-          const dataArrayImage: string[] = [];
-          req.body.productImage = 'http://' + process.env.URL + `/${nameFile.products}/` + productImage[0]?.filename;
-          dataArrayImageMulter.push(productImage[0]?.filename);
-          productImageDetail?.map((item: any) => {
-            dataArrayImage.push('http://' + process.env.URL + `/${nameFile.products}/` + item?.filename);
-            dataArrayImageMulter.push(item?.filename);
-          });
-          req.body.productImageDetail = dataArrayImage;
-          req.body.productImageMulter = dataArrayImageMulter;
+              const dataArrayImage: string[] = [];
+              const dataArrayImageMulter: string[] = [ImageOld];
+              productImageDetail?.map((item: any) => {
+                dataArrayImage.push('http://' + process.env.URL + `/${nameFile.products}/` + item?.filename);
+                dataArrayImageMulter.push(item?.filename);
+              });
+              req.body.productImageMulter = dataArrayImageMulter;
+            }
+          } else {
+            if (productImage || productImageDetail) {
+              const dataArrayImageMulter: string[] = [];
+              const dataArrayImage: string[] = [];
+              req.body.productImage = 'http://' + process.env.URL + `/${nameFile.products}/` + productImage[0]?.filename;
+              dataArrayImageMulter.push(productImage[0]?.filename);
+              productImageDetail?.map((item: any) => {
+                dataArrayImage.push('http://' + process.env.URL + `/${nameFile.products}/` + item?.filename);
+                dataArrayImageMulter.push(item?.filename);
+              });
+              req.body.productImageDetail = dataArrayImage;
+              req.body.productImageMulter = dataArrayImageMulter;
+            }
+          }
+          return products
+            .findByIdAndUpdate({ _id: id }, req.body)
+            .then((data: any) => {
+              return res.status(200).json(data);
+            })
+            .catch((err: any) => {
+              next(err);
+            });
+        } else {
+          return res.status(200).json({ mess: 'Không tìm thấy id của sản phẩm cần sửa.', id: id });
         }
       }
-      products
-        .findByIdAndUpdate({ _id: id }, req.body)
-        .then((data: any) => {
-          return res.status(200).json(data);
-        })
-        .catch((err: any) => {
-          next(err);
-        });
-    } else {
-      return res.status(200).json({ mess: 'Không tìm thấy id của sản phẩm cần sửa.', id: id });
+      return res.status(400).json(orther);
+    } catch (error) {
+      return next(error);
     }
   }
 }

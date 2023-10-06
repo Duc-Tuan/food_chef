@@ -7,8 +7,9 @@ const UserSchema = new SchemaUser(
   {
     ...component,
     userNickname: { type: String, length: 255, default: null },
-    userType: { type: String, length: 255, default: 'User' },
+    userType: { type: String, length: 255, default: 'User', enum: ['User', 'Admin'] },
     userRole: [{ type: SchemaUser.Types.ObjectId, ref: 'Roles', default: null }],
+    userRoles: [{ type: String, default: null }],
     userGender: { type: String, length: 255, default: 'Khác', enum: ['Nam', 'Nữ', 'Khác'] },
     userAdrressDesc: { type: String, length: 255, default: null },
     userProvinceCity: { type: String, length: 255, default: null },

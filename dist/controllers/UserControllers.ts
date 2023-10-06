@@ -7,97 +7,103 @@ import { encodePass } from '../utils/others/encode';
 import { mapIndex } from './Type';
 import { sendEmail } from '../utils/others/sendEmail';
 import { historyActions } from '../utils/others/historyActions';
+import { checkAccountAdmin, checkCart, checkEmployeeRights, checkRoles } from '../utils/others/checkModels';
 const Users = require('../models/UsersModel');
 const AddressModel = require('../models/AddressModel');
 const cartsModel = require('../models/CartsModel');
+const RolesModel = require('../models/RolesModel');
 
 class UsersController {
   //[GET] danh sách tài khoản tất cả hoặc theo phân trang page&pageSize hoặc tìm kiếm theo query&status
-  index(req: Request, res: Response, next: any) {
-    var { page, pageSize, query, status } = req.query;
-    let dataSearch: any = undefined;
-    let queryData: any = undefined;
+  async index(req: Request, res: Response, next: any) {
+    try {
+      const isCheck: any = await checkEmployeeRights(req, "ViewUsers");
+      const { roles, ...orther } = isCheck;
+      if (isCheck?.status) {
+        var { page, pageSize, query, status } = req.query;
+        let dataSearch: any = undefined;
+        let queryData: any = undefined;
 
-    // query data search
-    if (status && query) {
-      dataSearch = { $regex: query, $options: 'i' };
-      queryData = {
-        userStatus: status,
-        $or: [
-          { userNickname: dataSearch },
-          { userEmail: dataSearch },
-          { userPhone: dataSearch },
-          { userName: dataSearch },
-          { userProvinceCity: dataSearch },
-        ],
-      };
-    } else if (query) {
-      dataSearch = { $regex: query, $options: 'im' };
-      queryData = {
-        $or: [
-          { userNickname: dataSearch },
-          { userEmail: dataSearch },
-          { userPhone: dataSearch },
-          { userName: dataSearch },
-          { userProvinceCity: dataSearch },
-        ],
-      };
-    } else if (status) {
-      queryData = { userStatus: status };
-    }
+        // query data search
+        if (status && query) {
+          dataSearch = { $regex: query, $options: 'i' };
+          queryData = {
+            userStatus: status,
+            $or: [
+              { userNickname: dataSearch },
+              { userEmail: dataSearch },
+              { userPhone: dataSearch },
+              { userName: dataSearch },
+              { userProvinceCity: dataSearch },
+            ],
+          };
+        } else if (query) {
+          dataSearch = { $regex: query, $options: 'im' };
+          queryData = {
+            $or: [
+              { userNickname: dataSearch },
+              { userEmail: dataSearch },
+              { userPhone: dataSearch },
+              { userName: dataSearch },
+              { userProvinceCity: dataSearch },
+            ],
+          };
+        } else if (status) {
+          queryData = { userStatus: status };
+        }
 
-    var skipNumber: number = 0;
-    // get page, pageSize, query and status data
-    if (page || pageSize) {
-      const pageSizeNew = Number(pageSize);
-      let pageNew = Number(page);
-      if (pageNew <= 1) pageNew = 1;
-      skipNumber = (pageNew - 1) * pageSizeNew;
+        var skipNumber: number = 0;
+        const hidden = {
+          userImageMulter: 0,
+          userPassword: 0,
+          userRoles: 0,
+          userType: 0,
+          userRole: 0,
+          userAdrressOrder: 0,
+          userCodeReset: 0,
+        }
+        // get page, pageSize, query and status data
+        if (page || pageSize) {
+          const pageSizeNew = Number(pageSize);
+          let pageNew = Number(page);
+          if (pageNew <= 1) pageNew = 1;
+          skipNumber = (pageNew - 1) * pageSizeNew;
 
-      Users.find(queryData, {
-        userImageMulter: 0,
-        userPassword: 0,
-        userType: 0,
-        userRole: 0,
-        userAdrressOrder: 0,
-        userCodeReset: 0,
-      })
-        .skip(skipNumber)
-        .sort({ index: -1 })
-        .limit(pageSize)
-        .then((data: any) => {
-          Users.countDocuments(queryData)
-            .then((total: number) => {
-              var totalPage: number = Math.ceil(total / pageSizeNew);
-              return res.status(200).json({
-                paganition: {
-                  totalPage: Number(totalPage),
-                  currentPage: Number(page),
-                  pageSize: Number(pageSize),
-                  totalElement: Number(total),
-                },
-                data,
-              });
+          return Users.find({ userType: "User", ...queryData }, hidden)
+            .skip(skipNumber)
+            .sort({ index: -1 })
+            .limit(pageSize)
+            .then((data: any) => {
+              Users.countDocuments({ userType: "User", ...queryData })
+                .then((total: number) => {
+                  var totalPage: number = Math.ceil(total / pageSizeNew);
+                  return res.status(200).json({
+                    paganition: {
+                      totalPage: Number(totalPage),
+                      currentPage: Number(page),
+                      pageSize: Number(pageSize),
+                      totalElement: Number(total),
+                    },
+                    data,
+                  });
+                })
+                .catch((error: any) => next(error));
+            });
+        } else {
+          // get all
+          return Users.find({ userType: "User", ...queryData }, hidden)
+            .sort({ index: -1 })
+            .then((data: any) => {
+              return res.status(200).json(data);
             })
-            .catch((error: any) => next(error));
-        });
-    } else {
-      // get all
-      Users.find(queryData, {
-        userImageMulter: 0,
-        userPassword: 0,
-        userType: 0,
-        userRole: 0,
-        userAdrressOrder: 0,
-        userCodeReset: 0,
-      })
-        .sort({ index: -1 })
-        .then((data: any) => {
-          return res.status(200).json(data);
-        })
-        .catch((err: any) => {
-          return next(err);
-        });
+            .catch((err: any) => {
+              return next(err);
+            });
+        }
+      }
+      return res.status(400).json(orther);
+    } catch (error) {
+      return next(error);
     }
   }
 
@@ -181,41 +187,64 @@ class UsersController {
   }
 
   //[DELETE] Xóa một tài khoản theo id
-  deleteUser(req: Request, res: Response, next: any) {
-    const { id } = req.params;
-    Users.findById(id)
-      .then(async (data: any) => {
-        if (data.userImageMulter !== null) {
-          try {
-            await deleteFile(data?.userImageMulter);
-            // const directoryPath =
-            //   path.dirname(path.dirname(__dirname)) +
-            //   `\\dist\\assets\\others\\${nameFile.users}\\${data.userImageMulter}`;
-            // fs.unlinkSync(directoryPath);
-          } catch (e) {
-            console.error('Lỗi !!! Không tìm thấy đường dẫn để xóa ảnh');
+  async deleteUser(req: Request, res: Response, next: any) {
+    const isCheck: any = await checkEmployeeRights(req, "DeleteUsers");
+    const { roles, ...orther } = isCheck;
+    if (isCheck?.status) {
+      const { id } = req.params;
+      Users.findById(id)
+        .then(async (data: any) => {
+          if (data.userImageMulter !== null) {
+            try {
+              await deleteFile(data?.userImageMulter);
+              // const directoryPath =
+              //   path.dirname(path.dirname(__dirname)) +
+              //   `\\dist\\assets\\others\\${nameFile.users}\\${data.userImageMulter}`;
+              // fs.unlinkSync(directoryPath);
+            } catch (e) {
+              console.error('Lỗi !!! Không tìm thấy đường dẫn để xóa ảnh');
+            }
           }
-        }
-        await AddressModel.deleteMany({ address_useId: data?._id });
-        await cartsModel.deleteMany({ cartuserid: data?._id });
-        return Users.findByIdAndDelete({ _id: data?._id });
-      })
-      .then(() => {
-        return res.status(200).json({ status: true, mess: 'Xóa tài khoản thành công.' });
-      })
-      .catch((err: any) => {
-        next(err);
-        return res.status(400).json({ status: false, mess: 'Không tìm thấy id của tài khoản.' });
-      });
+          await AddressModel.deleteMany({ address_useId: data?._id });
+          await cartsModel.deleteMany({ cartuserid: data?._id });
+          return Users.findByIdAndDelete({ _id: data?._id });
+        })
+        .then(() => {
+          return res.status(200).json({ status: true, mess: 'Xóa tài khoản thành công.' });
+        })
+        .catch((err: any) => {
+          next(err);
+          return res.status(400).json({ status: false, mess: 'Không tìm thấy id của tài khoản.' });
+        });
+    }
+    return res.status(400).json(orther);
   }
 
   //[PATCH] update thông tin user
   async updateUser(req: Request, res: Response, next: any) {
     const { id } = req.params;
-    const { userEmail, userName, code, index, userStatus, passwordOld, passwordNew, userPassword, ...orther } = req.body;
+    const { userEmail, userName, code, index, userStatus, passwordOld, passwordNew, userPassword, userRole, userType, ...orther } = req.body;
     try {
       const checkUser = await Users.findOne({ _id: id });
       if (checkUser) {
+        const isCheck = await checkAccountAdmin(req, next);
+        if (isCheck?.roles === 'Admin' && isCheck?.status) {
+          const isRoles: any = await checkRoles(userRole);
+          if (isRoles?.status) {
+            const dataUpdate = {
+              userRole: isRoles?.id,
+              userType,
+            }
+
+            return Users.findByIdAndUpdate({ _id: id }, dataUpdate)
+              .then(() => { return res.status(200).json({ status: true, mess: 'Cập nhật thông tin thành công.' }); })
+              .catch((err: any) => { return next(err); });
+
+          }
+          return res.status(400).json({ status: false, mess: 'Đã xảy ra lỗi. Vui lòng quay lại sau!!!' })
+        }
+
+
         if (passwordOld) {
           const encodePassword = encodePass(passwordOld);
           const checkPassUser = await Users.findOne({ _id: id, userPassword: encodePassword });
